@@ -1,0 +1,17 @@
+#Brian E moore
+#01-05-15
+# files for git to ignore in main directory
+logs/
+
+log/
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+node_modules/
+
+
+

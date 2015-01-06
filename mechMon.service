@@ -1,0 +1,16 @@
+[Unit]
+Description=mechMon
+
+[Service]
+ExecStart= /usr/bin/nodejs /usr/local/mechMon/server.js 2000
+Restart=always
+
+StandardOutput=syslog
+SyslogIdentifier=mechMon
+Type=simple
+Environment=PATH=/usr/local/lib:/usr/local/mechMon:bin:/usr/bin:/usr/local/bin
+Environment=NODE_ENV=development
+
+[Install]
+WantedBy=multi-user.target
+Alias=mechMon.service
