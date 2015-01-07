@@ -75,7 +75,9 @@ id_rsa.pub
 
 Step 2: Generate a new SSH key
 
-To generate a new SSH key, copy and paste the text below, making sure to substitute in your email address. The default settings are preferred, so when you're prompted to "Enter a file in which to save the key", just press Enter to continue.
+To generate a new SSH key, copy and paste the text below, making sure to substitute in your email address. The default
+settings are preferred, so when you're prompted to "Enter a file in which to save the key", just press Enter to
+continue.
 
  ssh-keygen -t rsa -C "your_email@example.com"
 # Creates a new ssh key, using the provided email as a label
@@ -117,9 +119,10 @@ In the user settings sidebar, click SSH keys.
 
 Click Add SSH key.
 
-In the Title field, add a descriptive label for the new key. For example, if you're using a personal Mac, you might call this key "Personal MacBook Air".
-The key fieldPaste your key into the "Key" field.
-The Add key buttonClick Add key.
+In the Title field, add a descriptive label for the new key. For example, if you're using a personal Mac, you might call
+this key "Personal MacBook Air".
+The key field: Paste your key into the "Key" field.
+The Add key: buttonClick Add key.
 Confirm the action by entering your GitHub password.
 
 Step 4: Test everything out
@@ -149,7 +152,21 @@ If that username is yours, you've successfully set up your SSH key! Don't worry 
 If you receive a message about "access denied," you can read these instructions for diagnosing the issue.
 
 If you're switching from HTTPS to SSH, you'll now need to update your remote repository URLs. For more information,
- see Changing a remote's URL.
+ see Changing a remote's URL. I had to reset the remote repo aliased origin, branch master.
+
+$ git remote set-url origin git@github.com:brianemoore57/mechMonAppliance.git
+
+Then this test works just great!
+
+$ git push origin master
+Counting objects: 5, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 3.62 KiB, done.
+Total 3 (delta 2), reused 0 (delta 0)
+To git@github.com:brianemoore57/mechMonAppliance.git
+   f4ea14b..036781b  master -> master
+
 ====================================================================================================
 USING SSH PASSPHRASEs
 =====================================================================================================
