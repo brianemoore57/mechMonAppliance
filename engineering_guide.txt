@@ -1,0 +1,202 @@
+﻿
+Building on the Debian Distribution
+(Linux beaglebone 3.8.13-bone47 #1 SMP Fri Apr 11 01:36:09 UTC 2014 armv7l GNU/Linux)
+
+We will probably not develop any more using ethernet over USB connection, as it requires a lot of effort only to be
+undone. Using the wired or Wi-Fi (Logic Supply's UWN200 USB external adapter with 4" antenna) connections represents
+the installation environment best during development. The ethernet over USB may be used for installation during early
+development. A mature product will be installed via flash into eprom from microSD. The following assumes a Cygwin or
+linux environment on the company laptop/server.
+
+FIRMWARE PREPARATION
+The preparation of a new beaglebone black (without cape) requires the following steps:
+
+1. Connect the 5V 2A supply to the beaglebone. Observe the blue LEDs as the boot sequence exercises them. Once booted
+   fully, the USB0 LED flashes continuously, about once per second.
+
+2. Flash the upgraded OS if required from the micro SD. Insert the SD and reboot the board while holding down
+   the small button on the board itself. This boots from the SD and transfers it onto the onboard Flash ROM.
+   Note that we can eventually create our flash image with ALL customization on it.
+
+3. Connect to it via USB.
+
+4. Assigning a static IP address if required/desired. Actual field installs will be static. The connman tool is
+   used on Angstrom, or modify the boot.sh as required. This can and should be scripted as the default address is
+   192.168.7.2. A different static IP may be desired in the lab, and a final IP will be assigned in the field. An
+   explanation is at https://www.howtoforge.com/debian-static-ip-address.
+
+5. Execute install.sh script on the company laptop/server which copies a complete project directory as
+    /usr/local/mechMon onto the BBB, including the following:
+     a. build.sh - change to a grunt deploy process on company laptop/server
+     b. boot.sh - must be configured to run on bootup. Note we have NO BIOS, so date/time DNS, etc must be set on bootup
+     c. startup.sh - launches server
+     d. shutdown.sh - kills server
+     e. company ssh private key(s) so unit can communicate with company cloud server and service technician.
+
+6. Execute /usr/local/mecMon/build.sh - It will make directories, set permissions, etc. It may upgrade the
+7. If a cape is to be used, i.e. CBB-Relay cape, a .dtbo file must be insstalled into /var/lib
+8. Close all login methods other than ssh private keys (no password login).
+9. Test
+      a. test that date/time are set
+      b. check ifconfig that address is as desired
+      b. check that ping 8.8.8.8 works (route is good)
+      c. check ping www.google.com works (dns is good)
+      d. check 'ps aux | grep node server.js 2000' returns a value (Note another node instance is probably running)
+
+INITIAL DESIGN DECISIONS
+
+The installed node is version 0.10.2, and is required for Express, etc. The angstrom distribution has node v~0.8.02
+and will not run the latest Express. Our server will use the built-in service tools to take server up/down, auto-start
+(on boot) by file location, etc. The cloud9 environment is all setup to run on port 3000, and is a service that
+auto-starts on boot. We will disable that one. For now, we will use port 2000.
+
+BOOTING
+
+The booting requirements beyond what the platform does by itself, include making sure all pins and CAPE devices
+are in a known state. So somewhere in our boot process, we need to set them. Since the boot script itself is a BASH
+script, I prefer to set the pins with javascript when the server is launched. You will see code in server.js that
+initializes some of the pins, but must be expanded.
+
+ENGINEERING TIPS
+
+Regarding node.js, for these types of applications, you may not feel your ajax call, especially a POST,
+needs return any value to set a bit. But node requires you to return a value, even from a POST [although
+you can use res.send(undefined)]. So you might as well return an 'OK' text string. It is easier to diagnose.
+You actually need that acknowledgement, and using the 'success' method in the AJAX call, you can change the button
+color, etc to update 'state' in the GUI.
+
+Procedure for setting static-ip is not finalized, some references follow:
+   pertinent file: /etc/network/interfaces devian tools:
+   http://inspire.logicsupply.com/2014/07/beaglebone-wifi-installation.html (best method) wicd-curses tool (wi-fi)
+   https://www.howtoforge.com/debian-static-ip-address
+   http://sheldondwill.wordpress.com/2013/12/14/beaglebone-black-ubuntu-change-to-static-ip-address/
+   http://www.embeddedhobbyist.com/debian-tips/beaglebone-black/beaglebone-black-init-scripts-default-gatewayand-ntpdate/
+
+Excellent assistance for industrial applications:
+    http://inspire.logicsupply.com/2014/07/beaglebone-getting-ready-for-industrial.html
+
+
+Just for posterity, the procedure to upgrade node.js from scratch on the angstrom distro would follow the following
+procedure:
+
+Step 1: Prerequisites - here's what we will need, not how we will build it (we will use flash image)
+We will need a compiler to compile the node source. The build requires python for the configuration scripts and
+gcc for the actual code.
+# opkg update
+# opkg upgrade - will take hours
+# opkg install ntp
+$ vim /etc/ntp.conf
+and edit similar to the following
+  # NTP Configuration File
+  # The driftfile must remain in a place specific to this machine
+  driftfile /etc/ntp.drift
+  logfile /var/log/ntpd.log
+  # NTP Servers for USA
+  server 0.us.pool.ntp.org
+  server 1.us.pool.ntp.org
+  server 2.us.pool.ntp.org
+  server 3.us.pool.ntp.org
+  # Using local hardware clock as fallback
+  # Disable this when using ntpd -q -g -x as ntpdate or it will sync to itself
+  # server 127.127.1.0
+  # fudge 127.127.1.0 stratum 14
+  # Defining a default security setting
+  restrict 192.168.1.0 mask 255.255.255.0 nomodify notrap
+
+Now we need to set again our local zone. To check the available ones, just look into the
+ /usr/share/zoneinfo/ directory.
+
+$ rm /etc/localtime
+$ ln -s /usr/share/zoneinfo/Europe/Paris /etc/localtime
+And now we are going to configure the ntp service.
+
+$ systemctl enable ntpdate.service
+$ systemctl enable ntpd.service
+And finally we are going to edit the “ntpdate.service”:
+
+$ vim /lib/systemd/system/ntpdate.service
+And replace this line:
+  ExecStart=/usr/bin/ntpdate-sync silent
+With these two:
+  ExecStart=/usr/bin/ntpd -q -g -x
+  ExecStart=/sbin/hwclock --systohc
+Restart the board to allow the “ntp” service to start.
+
+-------------------------------------------
+# apt-get install python
+# apt-get install build-essential
+
+
+Step 2: Download Node Source
+Download the latest source code from the node.js website. At the time of writing it is version 0.10.5 so
+adjust this to the desired version. We will unpack it in the current directory. Specify the -C <path> option to
+extract it elsewhere.
+
+# wget http://nodejs.org/dist/v0.10.5/node-v0.10.5.tar.gz
+# tar xzvf node-v0.10.5.tar.gz
+
+
+Step 3: Configure
+At the time of this writing, there is a problem with the Google V8 Snapshot feature causing node to
+segmentation fault. Snapshotting helps node start faster and is not a big-deal feature; we will just compile
+without it.
+
+# cd node-v0.10.5
+# ./configure --without-snapshot
+Result:
+
+{ 'target_defaults': { 'cflags': [],
+                       'default_configuration': 'Release',
+                       'defines': [],
+                       'include_dirs': [],
+                       'libraries': []},
+  'variables': { 'arm_fpu': 'vfpv3',
+                 'arm_neon': 0,
+                 'armv7': 1,
+                 'clang': 0,
+                 'gcc_version': 47,
+                 'host_arch': 'arm',
+                 'node_install_npm': 'true',
+                 'node_prefix': '',
+                 'node_shared_cares': 'false',
+                 'node_shared_http_parser': 'false',
+                 'node_shared_libuv': 'false',
+                 'node_shared_openssl': 'false',
+                 'node_shared_v8': 'false',
+                 'node_shared_zlib': 'false',
+                 'node_tag': '',
+                 'node_unsafe_optimizations': 0,
+                 'node_use_dtrace': 'false',
+                 'node_use_etw': 'false',
+                 'node_use_openssl': 'true',
+                 'node_use_perfctr': 'false',
+                 'node_use_systemtap': 'false',
+                 'python': '/usr/bin/python',
+                 'target_arch': 'arm',
+                 'v8_enable_gdbjit': 0,
+                 'v8_no_strict_aliasing': 1,
+                 'v8_use_arm_eabi_hardfloat': 'true',
+                 'v8_use_snapshot': 'false'}}
+creating  ./config.gypi
+creating  ./config.mk
+
+
+Step 4: Compile
+We are ready to compile. It is going to take about a half-hour to complete — go get a cup of coffee.
+
+# make
+
+
+Step 5: Verify
+Now that the build has finished, we can verify that all looks well before we install it.
+
+# ./node -e 'console.log("het werkt!");'
+# ./node -v
+
+
+Step 6: Install
+Now that all looks well, we are ready install it.
+
+# make install
+‹ Where to buy the BeagleBone BlackExpanding Linux Partitions: Part 1 of 2 ›
+Posted in BeagleBone Black, HowTo	Tagged with: node debian ubuntu
