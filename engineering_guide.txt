@@ -59,6 +59,12 @@ initializes some of the pins, but must be expanded.
 
 ENGINEERING TIPS
 
+One problem encountered is the loss of access to the beaglebone by corrupting the ssh configuration, then needing
+another means of access. Of course a production installation should be of lesser concern, but much development
+time lost over this problem. See https://wiki.debian.org/NetworkConfiguration
+
+
+
 Regarding node.js, for these types of applications, you may not feel your ajax call, especially a POST,
 needs return any value to set a bit. But node requires you to return a value, even from a POST [although
 you can use res.send(undefined)]. So you might as well return an 'OK' text string. It is easier to diagnose.
@@ -75,7 +81,80 @@ Procedure for setting static-ip is not finalized, some references follow:
 Excellent assistance for industrial applications:
     http://inspire.logicsupply.com/2014/07/beaglebone-getting-ready-for-industrial.html
 
+Setting app up as a service: http://unix.stackexchange.com/questions/47695/how-to-write-startup-script-for-systemd
+   https://savanne.be/articles/deploying-node-js-with-systemd/
+   also https://coreos.com/docs/launching-containers/launching/getting-started-with-systemd/ - BEST!!
+    and http://www.linux.com/learn/tutorials/788613-understanding-and-using-systemd
+by creating a systemd unit file. Note the path to node must of couse be correct. For
+information regarding systemd vs init.d:    http://www.tecmint.com/systemd-replaces-init-in-linux/
+   also https://wiki.debian.org/Debate/initsystem/systemd
 
+Note that most current systems currently implement both for availibility to apps.
+In /etc/systemd/system create a file       see /etc/systemd/system/syslog.service for an example
+named mechMon.service
+============================
+[Unit]
+Description=mechMon
+ConditionPathExists=|/usr/local/mechMon
+[Service]
+ExecStart=/usr/local/mechMon/startup.sh
+      ExecStop=/usr/local/mechMon/shutdown.sh  if we werent using "Restart=always"
+      Type=oneshot would also be required
+Restart=always
+StandardOutput=syslog
+SyslogIdentifier=mechMon
+User-nobody
+Group=nobody
+Environment=PATH=/opt/nodejs/v0.10.25.bin:/usr/bin:/usr/local/bin
+Environment=NODE_ENV=development     or  production
+
+[Install]
+WantedBy=multi-user.target
+==============================
+These are the commands you're probably going to use the most:
+
+# systemctl start [name.service]
+# systemctl stop [name.service]
+# systemctl restart [name.service]
+# systemctl reload [name.service]
+$ systemctl status [name.service]
+# systemctl is-active [name.service]
+$ systemctl list-units --type service --all
+systemd has 12 unit types. .service is system services, and is default - the suffix is not really required
+$ systemd-analyze blame  You can run this to find out how long it takes to boot all programs and services.
+ systemctl list-unit-files --type=service displays the status of all installed services that have init scripts
+
+
+The familiar /etc/inittab is no more. Instead, we have a /etc/systemd/system/ directory chock-full of symlinks to
+files in /usr/lib/systemd/system/. /usr/lib/systemd/system/ contains init scripts; to start a service at boot
+it must be linked to /etc/systemd/system/. The systemctl command does this for you when you enable a new service,
+like this example:
+$ systemctl enable ntp.service
+ln -s '/usr/lib/systemd/system/ntp.service' '/etc/systemd/system/multi-user.target.wants/ntp.service'
+
+This way, other scripts, perhaps SysV scripts that need this service can find it. So "systemctl enable myapp.service"
+is required. Then  "systemctl status myapp.service" will show it as enabled. (This does not mean running BTW)
+There are three possible states for a service: enabled or disabled, and static. Enabled means it has a symlink in a
+.wants directory. Disabled means it does not. Static means the service is missing the [Install] section in its init
+script, so you cannot enable or disable it. Static services are usually dependencies of other services, and are
+controlled automatically. You can see this in the ClamAV example, as clamd@.service is a dependency of
+clamd@scan.service, and it runs only when clamd@scan.service runs.
+
+None of these states tell you if a service is running. The ps command will tell you, or use systemctl to get more
+detailed information:
+
+  $ systemctl status bluetooth.service
+  bluetooth.service - Bluetooth service
+     Loaded: loaded (/usr/lib.systemd/system/bluetooth.service; enabled)
+     Active: active (running) since Thu 2014-09-14 6:40:11 PDT
+    Main PID: 4964 (bluetoothd)
+     CGroup: /system.slice/bluetooth.service
+             |_4964 /usr/bin/bluetoothd -n
+  systemctl tells you everything you want to know, if you know how to ask
+
+Note the environment variable NODE_ENV=development above causes node to turn off caching among other things,
+(but not your browser). Changing the environment variable NODE_ENV=production turns them back on.
+******************************************************************************************************
 Just for posterity, the procedure to upgrade node.js from scratch on the angstrom distro would follow the following
 procedure:
 
