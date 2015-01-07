@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/beaglebone_CBBRelay.iml" filepath="$PROJECT_DIR$/.idea/beaglebone_CBBRelay.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/bbb_gate_server.iml" filepath="$PROJECT_DIR$/.idea/bbb_gate_server.iml" />
     </modules>
   </component>
 </project>

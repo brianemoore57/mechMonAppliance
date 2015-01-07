@@ -6,7 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="">
-  <meta name="author" content="">
+  <meta name="author" content="Brian E. Moore, PE">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title>BeagleBone Black Demo</title>
+
   <link rel="icon" href="../../favicon.ico">
 
   <title>mechMon</title>
@@ -72,21 +76,18 @@
   </div>
 </nav>
 
-
-
-
 <div class="container-fluid">
-  <h2>Equipment</h2>
-  <ul class="nav nav-tabs" role="Equipment">
-    <li id="gateTab"  role="presentation" class="active" ><a href="#">Gate</a></li>
-    <li id="whtrTab"  role="presentation"><a href="#">W Htr</a></li>
-    <li id="furnTab"  role="presentation"><a href="#">Furnace</a></li>
-    <li id="sumpTab"  role="presentation"><a href="#">Sump</a></li>
-    <li id="tstatTab" role="presentation"><a href="#">Tstat</a></li>
-    <li id="configTab" role="presentation"><a href="#">Config</a></li>
+  <ul class="nav nav-pills">
+    <li id="gatePill"  role="button" class="active" ><a href="#">Gate</a></li>
+    <li id="whtrPill"  role="button"><a href="#">W Htr</a></li>
+    <li id="furnPill"  role="button"><a href="#">Furn</a></li>
+    <li id="sumpPill"  role="button"><a href="#">Sump</a></li>
+    <li id="tstatPill" role="button"><a href="#">Tstat</a></li>
   </ul>
 </div>
+<div id="main">
 
+</div>
 <!-- Bootstrap and jQuery JavaScript
 
 ================================================== -->
@@ -102,12 +103,35 @@
 <script src="about.js"></script-->
 
 <script>
+  var addr='192.168.1.131';
+  var port='2000';
   $( document ).ready(function() {
-    $("#gateTab" ).load( "../client/gate.html" );
-
+    $("#main" ).load( "../client/gate.html" );
+    // ADD socket.io command to get_Address() of server
+    // WE WILL DO MUCH MORE WITH SOCKET.IO and will  get data update every sec or so
+    // display heartbeat LED on main page - wont really need to ask much.
   });// .ready()
 
-  $("#contact").click(function() {
+  $('#gatePill').click( function() {
+    $("#main" ).load( "../client/gate.html" );
+  });
+  $('#whtrPill').click( function() {
+    $("#main" ).load( "../client/w-heater.html" );
+  });
+  $('#furnPill').click( function() {
+    $("#main" ).load( "../client/furnace.html" );
+  });
+  $('#sumpPill').click( function() {
+    $("#main" ).load( "../client/w-heater.html" );
+  });
+  $('#tstatPill').click( function() {
+    $("#main" ).load( "../client/thermostat.html" );
+  });
+  $('#configPill').click( function() {
+    $("#main" ).load( "../client/configure.html" );
+  });
+
+   $('#contact').click( function() {
     BootstrapDialog.show({
       type: BootstrapDialog.TYPE_PRIMARY,
       title: 'Contact',
@@ -119,7 +143,7 @@
     "www.mooretechnicalservices.com"});
     });
 
-  $("#about").click(function(){
+  $('#about').click( function(){
     BootstrapDialog.show({
       type: BootstrapDialog.TYPE_PRIMARY,
       title: 'About',
@@ -127,37 +151,58 @@
       "www.mooretechnicalservices.com" });
     });
 
-  function openGate(){
+  // These are dynamic handlers which we cannot bind until their objects exist. jQuery's answer is .on
+  // and we bind them to something that does exist, the '#navbar' tag, which will 'watch' for them.
+
+  $(document.body).on('click','#openButton', function(){
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-9.gif");} ,1000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-8.gif");} ,2000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-7.gif");} ,3000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-6.gif");} ,4000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-5.gif");} ,5000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-5.gif");} ,10000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-6.gif");} ,11000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-7.gif");} ,12000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-8.gif");} ,13000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-9.gif");} ,14000);
     $.ajax({
       type: "POST",
-      url: 'http://192.168.7.2:2000/RelayK1On-30s',
+      url: 'http://192.168.1.131:2000/RelayK1On-30s',
       data: "1",
       success: function(){ },// here we will change button colors
       dataType: "text"
     });
-    $('#gate-img img').attr('src','../images/Gates_open.gif'); //replaces with animation
-  }
+  });
 
-  function holdGate(){
+  $(document.body).on('click','#holdButton', function(){
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-9.gif");} ,1000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-8.gif");} ,2000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-7.gif");} ,3000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-6.gif");} ,4000)
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-5.gif");} ,5000);
     $.ajax({
       type: "POST",
-      url: 'http://192.168.7.2:2000/RelayK1On',
+      url: 'http://192.168.1.131:2000/RelayK1On',
       data: "1",
       success: function(){ },// here we will change button colors
       dataType: "text"
     });
-  }
+  });
 
-  function closeGate(){
+  $(document.body).on('click','#closeButton', function(){
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-5.gif");} ,1000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-6.gif");} ,2000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-7.gif");} ,3000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-8.gif");} ,4000)
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-9.gif");} ,5000);
     $.ajax({
       type: "POST",
-      url: 'http://192.168.7.2:2000/RelayK1Off'
-      ,
+      url: 'http://192.168.1.131:2000/RelayK1Off',
       data: "1",
       success: function(){},// here we will change button colors
       dataType: "text"
     });
-  }
+  });
 
 
 </script>
