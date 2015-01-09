@@ -3,60 +3,36 @@
  */
 var mechMonControllers = angular.module('mechMonControllers', []);
 
-mechMonControllers.controller('gateDetailCtrl', ['$scope', '$http',
+
+mechMonControllers.controller('deviceListCtrl', ['$scope', '$http',
   function ($scope, $http) {
-    $http.get('gate/gate.json').success(function(data) {
-      $scope.gate = data;
+
+    // we have all of nav data in this controller object
+
+    //$http.get('gate/gate.json').success(function(data) {
+    //  $scope.gate = data;
+    //});
+
+    $scope.noItems = '1';
+  }]);
+
+
+
+mechMonControllers.controller('deviceDetailCtrl', ['$scope', '$http',
+  function ($scope, $http) {
+    $http.get('device/device.json').success(function(data) {
+      $scope.data = data;
     });
 
+
     $scope.deviceType = 'gate';
+    $scope.description = 'gate';
+    $scope.name = 'Custom Gate';
+    $scope.model ='None';
     $scope.gateId = '1';
     $scope.gateLocation = 'Main Entrance';
     $scope.gateStatus = 'closed';
     // we will need to nest these properties,
   }]);
 
-mechMonControllers.controller('sumpDetailCtrl', ['$scope', '$routeParams',
-  function($scope, $routeParams)
-  {
-
-    $scope.deviceType = 'sump';
-    $scope.sumpId = $routeParams.sumpId;
-    $scope.sumpModelNo = $routeParams.sumpModelNo;
-    $scope.sumpId = $routeParams.sumpId;
-    $scope.sumpId = $routeParams.sumpId;
-
-  }]);
-mechMonControllers.controller('w-heaterDetailCtrl', ['$scope', '$routeParams',
-  function($scope, $routeParams)
-  {
-
-    $scope.deviceType = 'water heater';
-    $scope.sumpId = $routeParams.sumpId;
-    $scope.sumpModelNo = $routeParams.sumpModelNo;
-    $scope.sumpId = $routeParams.sumpId;
-    $scope.sumpId = $routeParams.sumpId;
-
-  }]);
-
-mechMonControllers.controller('thermostatDetailCtrl', ['$scope', '$routeParams',
-  function($scope, $routeParams)
-  {
-    $scope.deviceType = 'thermostat';
-    $scope.sumpId = $routeParams.sumpId;
-    $scope.sumpModelNo = $routeParams.sumpModelNo;
-    $scope.sumpId = $routeParams.sumpId;
-    $scope.sumpId = $routeParams.sumpId;
-
-  }]);
-mechMonControllers.controller('furnaceDetailCtrl', ['$scope', '$routeParams',
-  function($scope, $routeParams)
-  {
-    $scope.deviceType = 'furnace';
-    $scope.sumpId = $routeParams.sumpId;
-    $scope.sumpModelNo = $routeParams.sumpModelNo;
-    $scope.sumpId = $routeParams.sumpId;
-    $scope.sumpId = $routeParams.sumpId;
-
-  }]);
 

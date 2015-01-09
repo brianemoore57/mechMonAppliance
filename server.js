@@ -49,24 +49,23 @@ ApiFiles.forEach(function(file){
 });
 // Setup logging..
 // create a write stream (in append mode)
+// Launching index.html from inside mechMon/app
 var accessLogStream = fs.createWriteStream(__dirname + '/log/access.log', {flags: 'a'});
 // setup the logger
 app.use(morgan('combined', {stream: accessLogStream}));
 
 // point to the client folder for the client app
 app.use('/', express.static(__dirname + '/app'));
-app.use('/server', express.static(__dirname + '/server'));
-app.use('node_modules', express.static(__dirname + '/node_modules'));
-app.use('images', express.static(__dirname + '/images'));
-app.use('app', express.static(__dirname + '/app'));
-app.use('bower_components', express.static(__dirname + '/app/bower_components'));
-app.use('js', express.static(__dirname + '/app/js'));
+//app.use('/server', express.static(__dirname + '/server'));
 
-
+app.use('images', express.static(__dirname + 'images'));
+//app.use('app', express.static(__dirname + '/app'));
+app.use('bower_components', express.static(__dirname + '/bower_components'));
+app.use('js', express.static(__dirname + '/js'));
+app.use('css', express.static(__dirname + '/css'));
 app.use('partials', express.static(__dirname + '/partials'));
-
 app.use('bootstrap3-dialog', express.static(__dirname + '/bootstrap3-dialog'));
-
+//app.use('bootstrap', express.static(__dirname + '/bower_components/bootstrap'));
 app.post('/RelayK1On',function (req, res){ 
   b.digitalWrite(K1Pin, b.HIGH) ;
   res.send('OK');});
