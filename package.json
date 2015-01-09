@@ -20,5 +20,12 @@
     "start": "node server.js"
   },
   "author": "Brian E. Moore, PE",
-  "license": "BSD-2-Clause"
+  "license": "BSD-2-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:brianemoore57/mechMonAppliance.git"
+  },
+  "bugs": {
+    "url": "https://github.com/brianemoore57/mechMonAppliance/issues"
+  }
 }

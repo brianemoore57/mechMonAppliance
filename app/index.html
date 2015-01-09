@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html ng-app lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="Brian E. Moore, PE">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title>MTS Home Controller</title>
+  <link rel="icon" href="../../favicon.ico">
+  <title>mechMon</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+   <!-- Bootstrap theme -->
+  <link href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
+  <!-- Bootstrap-dialog theme -->
+  <link href="app/bootstrap3-dialog/dist/css/bootstrap-dialog.min.css" rel="stylesheet" >
+  <!-- Custom styles for this template -->
+  <link href="theme.css" rel="stylesheet">
+
+  <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+  <!--[if lt IE 9]><script src="../node_modules/bootstrap/docs/assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+  <script src="bower_components/bootstrap/docs/assets/js/ie-emulation-modes-warning.js"></script>
+  <script src="js/controllers.js"></script>
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io();
+</script>
+
+</head>
+
+<body  role="document">
+
+<!-- collapsing navbar -->
+<nav class="navbar navbar-inverse">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">MTS Home Controller</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="./index.html">Home</a></li>
+        <li id="about" ><a>About</a></li>
+        <li id="contact" ><a >Contact</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Config<span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="#">Conn Setup</a></li>
+            <li><a href="#">Cust Setup</a></li>
+            <li><a href="#">Key Setup</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Nav header</li>
+            <li><a href="#">Reports</a></li>
+            <li><a href="#">Diagnostics</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <ul class="nav nav-pills">
+    <li id="gatePill"  role="button" class="active" ><a href="#">Gate</a></li>
+    <li id="whtrPill"  role="button"><a href="#">W Htr</a></li>
+    <li id="furnPill"  role="button"><a href="#">Furn</a></li>
+    <li id="sumpPill"  role="button"><a href="#">Sump</a></li>
+    <li id="tstatPill" role="button"><a href="#">Tstat</a></li>
+  </ul>
+</div>
+<div id="main">
+
+</div>
+<!-- Bootstrap and jQuery JavaScript
+
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+<!--script src="../node_modules/bootstrap/docs/assets/js/docs.min.js"></script -->
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<script src="node_modules/bootstrap/docs/assets/js/ie10-viewport-bug-workaround.js"></script>
+<script src="bootstrap3-dialog/dist/js/bootstrap-dialog.min.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<!--script src="../client/contact.js"></script>
+<script src="about.js"></script-->
+
+<script>
+  var addr='192.168.1.131';
+  var port='2000';
+  $( document ).ready(function() {
+    $("#main" ).load( "partials/gateDetail.html" );
+    // ADD socket.io command to get_Address() of server
+    // WE WILL DO MUCH MORE WITH SOCKET.IO and will  get data update every sec or so
+    // display heartbeat LED on main page - wont really need to ask much.
+  });// .ready()
+
+  $('#gatePill').click( function() {
+    $("#main" ).load( "partials/gateDetail.html" );
+  });
+  $('#whtrPill').click( function() {
+    $("#main" ).load( "partials/w-heaterDetail.html" );
+  });
+  $('#furnPill').click( function() {
+    $("#main" ).load( "partials/furnaceDetail.html" );
+  });
+  $('#sumpPill').click( function() {
+    $("#main" ).load( "partials/sumpDetail.html" );
+  });
+  $('#tstatPill').click( function() {
+    $("#main" ).load( "partials/thermostatDetail.html" );
+  });
+  $('#configPill').click( function() {
+    $("#main" ).load( "partials/configureDetail.html" );
+  });
+
+   $('#contact').click( function() {
+    BootstrapDialog.show({
+      type: BootstrapDialog.TYPE_PRIMARY,
+      title: 'Contact',
+      message: "Moore Technical Services, LLC" + "\n" +
+    "4001 S. Rockport Rd" + "\n" +
+    "Bloomington, IN 47403" + "\n" +
+    "823-322-6563" + "\n" +
+    "Brian E. Moore, PE" + "\n" +
+    "www.mooretechnicalservices.com"});
+    });
+
+  $('#about').click( function(){
+    BootstrapDialog.show({
+      type: BootstrapDialog.TYPE_PRIMARY,
+      title: 'About',
+      message: "MTS Mechanical Room Monitor" + "\n" +
+      "www.mooretechnicalservices.com" });
+    });
+
+  // These are dynamic handlers which we cannot bind until their objects exist. jQuery's answer is .on
+  // and we bind them to something that does exist, the '#navbar' tag, which will 'watch' for them.
+
+  $(document.body).on('click','#openButton', function(){
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-9.gif");} ,1000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-8.gif");} ,2000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-7.gif");} ,3000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-6.gif");} ,4000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-5.gif");} ,5000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-5.gif");} ,10000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-6.gif");} ,11000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-7.gif");} ,12000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-8.gif");} ,13000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-9.gif");} ,14000);
+    $.ajax({
+      type: "POST",
+      url: 'http://192.168.1.131:2000/RelayK1On-30s',
+      data: "1",
+      success: function(){ },// here we will change button colors
+      dataType: "text"
+    });
+  });
+
+  $(document.body).on('click','#holdButton', function(){
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-9.gif");} ,1000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-8.gif");} ,2000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-7.gif");} ,3000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-6.gif");} ,4000)
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-5.gif");} ,5000);
+    $.ajax({
+      type: "POST",
+      url: 'http://192.168.1.131:2000/RelayK1On',
+      data: "1",
+      success: function(){ },// here we will change button colors
+      dataType: "text"
+    });
+  });
+
+  $(document.body).on('click','#closeButton', function(){
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-5.gif");} ,1000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-6.gif");} ,2000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-7.gif");} ,3000);
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-8.gif");} ,4000)
+    setTimeout(function(){ $("#gate-img").attr("src","../images/tmp-9.gif");} ,5000);
+    $.ajax({
+      type: "POST",
+      url: 'http://192.168.1.131:2000/RelayK1Off',
+      data: "1",
+      success: function(){},// here we will change button colors
+      dataType: "text"
+    });
+  });
+
+
+</script>
+</body>
+</html>

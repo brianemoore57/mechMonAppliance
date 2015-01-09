@@ -369,10 +369,55 @@ detailed information:
      CGroup: /system.slice/bluetooth.service
              |_4964 /usr/bin/bluetoothd -n
   systemctl tells you everything you want to know, if you know how to ask
+systemctl logs to '/var/log/syslog' - so 'tail /var/log/syslog' shows all
+
 
 Note the environment variable NODE_ENV=development above causes node to turn off caching among other things,
 (but not your browser). Changing the environment variable NODE_ENV=production turns them back on.
+
 ******************************************************************************************************
+              CONFIGURING WIRELESS INTERFACE(S)
+******************************************************************************************************
+
+The debian wireless configuration is described in two parts: Installing the hardware and driver to get
+iwconfig working, and the dealing with security and other issues to complete the installation.
+
+1. The drivers will vary of course,with the particular firmware chosen for use. So far, we have played with
+two USB direct plug-in wireless units:
+  a. Adafruit PN #1012 "OURLINK" stick (Realtek RTL8188EUS/8189ES hardware)
+    driver mini-DVD version is: v4.1.2.2_5805.20121116 Software Package - Linux Driver
+  b. Logic_Supply     Model Number: UWN200 MediaTek MT7601 (Ralink 7601) Controller Wireless-N
+The following article has much to say on this portion of the process:
+         https://wiki.debian.org/WiFi
+    also http://linuxforums.org.uk/index.php?topic=11261.0
+Note that our driver is named
+
+Once we have the driver, thru DVD or apt-get, the debian install is pretty much the following
+procedure:
+
+sudo apt-get install build-essential linux-headers-generic git
+mkdir ~/RTL8188EU
+then:
+cd ~/RTL8188EU
+git clone git://github.com/lwfinger/rtl8188eu
+cd ~/RTL8188EU/rtl8188eu
+make
+sudo make install
+sudo cp -v ~/RTL8188EU/rtl8188eu/rtl8188eufw.bin /lib/firmware/rtlwifi/
+sudo depmod -a
+sudo update-initramfs -u
+sudo modprobe 8188eu
+Wireless should spring to life.
+
+
+2.An excellent presentation of this process i in the article: https://wiki.debian.org/WiFi/HowToUse
+
+
+
+******************************************************************************************************
+              UPGRADING NODE FROM SRC (only necessary on Angstrom distro
+******************************************************************************************************
+
 Just for posterity, the procedure to upgrade node.js from scratch on the angstrom distro would follow the following
 procedure:
 

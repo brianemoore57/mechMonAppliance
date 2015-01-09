@@ -1,0 +1,11 @@
+Brian E. Moore, PE
+4001 S. Rockport Rd
+Bloomington, IN 47403
+
+           ***  TO DO  ***
+01-07-14 incorporate angular.js
+01-07-14 understand & incorporate wireless drivers
+01-07-14 understand & incorporate wireless security at
+01-07-14 incorporate angular.js
+01-07-14 incorporate angular.js
+
