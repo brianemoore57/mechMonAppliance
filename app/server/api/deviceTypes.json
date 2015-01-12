@@ -1,0 +1,46 @@
+
+  [
+        {
+          "typeId": "gate1",
+          "description": "gate",
+          "name":"Front Gate",
+          "label":"Gate",
+          "imageUrl": "images/tmp-9.gif",
+          "orderSeq": "1"
+        },
+        {
+          "typeId": "w-htr1",
+          "description": "Water Heater",
+          "name":"Wtr Htr",
+          "label":"W Htr",
+          "imageUrl": "images/hot-water-heater.jpg",
+          "orderSeq": "1"
+        },
+        {
+          "typeId": "furn-1",
+          "deviceType":"3",
+          "description": "furnace",
+          "name":"Furnace",
+          "label":"Furn",
+          "imageUrl": "images/gas-furnace-1-edited.jpg",
+          "orderSeq": "1"
+        },
+        {
+          "typeId": "sump-1",
+          "description": "sump pump",
+          "name":"Sump Pump",
+          "label":"Sump",
+          "imageUrl": "images/sump.jpg",
+          "orderSeq": "1"
+        },
+        {
+          "typeId": "tstat-1",
+          "description": "Thermostat",
+          "name":"Thermostat",
+          "label":"Tstat",
+          "imageUrl": "images/thermostat.jpg",
+          "orderSeq": "1"
+        }
+      ]
+
+

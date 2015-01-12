@@ -1,0 +1,38 @@
+[
+        {
+          "id": "gate-1",
+          "typeId":"gate-1",
+          "model":"None",
+          "serialNo":"None",
+          "room":"1"
+        },
+        {
+          "id": "w-htr1",
+          "typeId":"w-htr1",
+          "model":"None",
+          "serialNo":"None",
+          "room":"1"
+        },
+        {
+          "id": "furn-1",
+          "typeId":"furn-1",
+          "model":"None",
+          "serialNo":"None",
+          "room":"1"
+        },
+        {
+          "id": "sump-1",
+          "typeId": "sump-1",
+          "model":"None",
+          "serialNo":"None",
+          "room":"1"
+        },
+        {
+          "id": "tstat-1",
+          "typeId": "tstat-1",
+          "model":"None",
+          "serialNo":"None",
+          "room":"1"
+        }
+      ]
+

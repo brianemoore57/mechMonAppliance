@@ -2,84 +2,72 @@
  * mechMon
  * Brian E.Moore
  * December 29, 2014
- */
 
+
+ *///we should adopt the practice of setting the PORT variable
 var express = require('express'),
     //DbInit = require('./server/init/DbInit'),
     bodyParser = require('body-parser'), // express middleware,
+    errorHandler = require('errorhandler'),
+    methodOverride = require('method-override'),
+    hostname = process.env.HOSTNAME || 'localhost',
+    port = parseInt(process.env.PORT, 10) || 2000,
     morgan = require('morgan'), // express middleware, the logger
     fs = require('fs'),
     path = require('path'),
     b = require('bonescript'),
     socketio = require('socket.io');
 
-var K1Pin = "P8_18";
-var K2Pin = "P9_27";
-
-function boardInit(){
-  b.pinMode(K1Pin, b.OUTPUT);
-  b.pinMode(K2Pin, b.OUTPUT);
-  b.digitalWrite(K1Pin,b.LOW);
-  b.digitalWrite(K2Pin,b.LOW); 
-
-}
 
 console.log("Initialize beaglebone GPIO");
-boardInit(); // This only runs once on server startup right?
+
+
 var app = express();
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({extended: true}));
-
-//parse application/json
+app.use(methodOverride());
 app.use(bodyParser.json());
-
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+ app.use(morgan('dev'));
 //turn on logging
-app.use(morgan('dev'));
 
-var ROUTES_DIR = __dirname + '/server/api',
-    DEFAULT_PORT = 3000;
+var  DEFAULT_PORT = 3000;
 var port = process.argv[2] || DEFAULT_PORT;
 if (port == ''){port = DEFAULT_PORT}
 //load API routes
+/*
 var ApiFiles = fs.readdirSync(ROUTES_DIR);
 ApiFiles.forEach(function(file){
   var filePath = path.resolve('./', ROUTES_DIR, file),
       apiObject = require(filePath);
   apiObject.initRoutes(app);
 });
-// Setup logging..
+*/
+
 // create a write stream (in append mode)
-// Launching index.html from inside mechMon/app
 var accessLogStream = fs.createWriteStream(__dirname + '/log/access.log', {flags: 'a'});
 // setup the logger
 app.use(morgan('combined', {stream: accessLogStream}));
 
-// point to the client folder for the client app
 app.use('/', express.static(__dirname + '/app'));
-//app.use('/server', express.static(__dirname + '/server'));
-
-app.use('images', express.static(__dirname + 'images'));
-//app.use('app', express.static(__dirname + '/app'));
+//app.use('server', express.static(__dirname + '/server'));
+app.use('images', express.static(__dirname + '/images'));
 app.use('bower_components', express.static(__dirname + '/bower_components'));
 app.use('js', express.static(__dirname + '/js'));
 app.use('css', express.static(__dirname + '/css'));
 app.use('partials', express.static(__dirname + '/partials'));
 app.use('bootstrap3-dialog', express.static(__dirname + '/bootstrap3-dialog'));
-//app.use('bootstrap', express.static(__dirname + '/bower_components/bootstrap'));
-app.post('/RelayK1On',function (req, res){ 
-  b.digitalWrite(K1Pin, b.HIGH) ;
-  res.send('OK');});
-app.post('/RelayK1On-30s',function (req, res){
-  b.digitalWrite(K1Pin, b.HIGH) ;
-  setTimeout(function(){b.digitalWrite(K1Pin, b.LOW)},30000 );
-  res.send('OK');});
 
-app.post('/RelayK1Off',function (req, res){
-  b.digitalWrite(K1Pin, b.LOW);
-  res.send('OK');});
-//DbInit.dbInit('localhost', 'mechMonitor');
+/* include all the get, post, etc. routes */
+//require('app/server/api/routes.js');
 
-// set up http server
+require(__dirname + '/app/server/api/routes')(app);
+
+app.use(errorHandler({
+  dumpExceptions: true,
+  showStack: true
+}));
+
 var httpServer = app.listen(port);
 console.log('server.js: App launched. Server running on port:'+port);
 // set up socket server
