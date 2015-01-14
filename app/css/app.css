@@ -16,6 +16,8 @@ body {
 .theme-showcase .navbar .container {
     width: auto;
 }
+/* just to narrow up width of alerts */
+.alert { padding:30px;  }
 
 /*following from angular-ui.github.io/bootstrap (using boostrap with angularjs)
  the following deals with the fact that bootstrap uses empty href tags for things

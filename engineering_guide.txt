@@ -34,7 +34,7 @@ The preparation of a new beaglebone black (without cape) requires the following 
      e. company ssh private key(s) so unit can communicate with company cloud server and service technician.
 
 6. Execute /usr/local/mecMon/build.sh - It will make directories, set permissions, etc. It may upgrade the
-7. If a cape is to be used, i.e. CBB-Relay cape, a .dtbo file must be insstalled into /var/lib
+7. If a cape is to be used, i.e. CBB-Relay cape, a .dtbo file must be installed into /var/lib
 8. Close all login methods other than ssh private keys (no password login).
 9. Test
       a. test that date/time are set
@@ -58,7 +58,36 @@ script, I prefer to set the pins with javascript when the server is launched. Yo
 initializes some of the pins, but must be expanded.
 
 ENGINEERING TIPS
+Just something to study:
+avahi wiki site http://en.wikipedia.org/wiki/Avahi_%28software%29
+Avahi is a free zero-configuration networking (zeroconf) implementation, including a system for multicast
+DNS/DNS-SD service discovery. It is licensed under the GNU Lesser General Public License (LGPL).Avahi is a system
+which enables programs to publish and discover services and hosts running on a local network. For example, a user
+can plug their computer into a network and have Avahi automatically advertise the network services running on the
+machine which could enable access to files and printers.
 
+Software architecture
+
+Architectural overview of the Avahi software framework
+Avahi implements the Apple Zeroconf specification, mDNS, DNS-SD and RFC 3927/IPv4LL. Other implementations include
+Apple's Bonjour framework (the mDNSResponder component of which is licensed under the Apache License).
+Avahi provides a set of language bindings (Python, Mono, etc.) and ships with most Linux and *BSD distributions.
+Because of its modularized architecture, major desktop components like GNOME's Virtual File System and the KDE input/output architecture already integrate Avahi.
+Avahi vs. Bonjour
+The Avahi project started in 2004 because Apple's Zeroconf implementation, Bonjour, used the GPL-incompatible Apple
+Public Source License. Subsequently[when?] Apple relicensed parts of Bonjour under the Apache License. However,
+Avahi had already become the de facto standard implementation of mDNS/DNS-SD on free-software operating systems such
+as GNU/Linux.[citation needed]
+
+Avahi's performance resembles that of Bonjour, sometimes exceeding it; however Avahi can lose services when managing
+large numbers of requests simultaneously.[1]
+see http://www.avahi.org/
+avahi-daemon - then as a zeroconf hostname simplifies SSHing with a local machine by assigning it a hostname on the local
+LAN. This way we don't need to know the IP (which can change over time) to start a SSH session.
+On the Beaglebone
+sudo apt-get install avahi-daemon
+# On the PC
+ssh <beagle-username>@<beagle-hostname>.local
 
 ========================================================================
 Use of ssh keys, here is github's literature:
@@ -308,23 +337,25 @@ information regarding systemd vs init.d:    http://www.tecmint.com/systemd-repla
    also https://wiki.debian.org/Debate/initsystem/systemd
 
 Note that most current systems currently implement both for availibility to apps.
-In /etc/systemd/system create a file       see /etc/systemd/system/syslog.service for an example
-named mechMon.service
+see /etc/systemd/system/syslog.service for an example
+You can also see the file used by the beaglebone 'bonescript' and 'autorun' services.
+We will be turning them off.
+Our services unit file is named mechMon.service currently the following. It goes in
+/etc/systemd/system
 ============================
 [Unit]
 Description=mechMon
-ConditionPathExists=|/usr/local/mechMon
+
 [Service]
 ExecStart=/usr/local/mechMon/startup.sh
-      ExecStop=/usr/local/mechMon/shutdown.sh  if we werent using "Restart=always"
-      Type=oneshot would also be required
 Restart=always
+
 StandardOutput=syslog
 SyslogIdentifier=mechMon
-User-nobody
-Group=nobody
-Environment=PATH=/opt/nodejs/v0.10.25.bin:/usr/bin:/usr/local/bin
-Environment=NODE_ENV=development     or  production
+Type=simple
+Environment=PATH=/usr/local/lib:/usr/local/mechMon:bin:/usr/bin:/usr/local/bin
+#can change following to production to start caching
+Environment=NODE_ENV=development
 
 [Install]
 WantedBy=multi-user.target
@@ -379,6 +410,105 @@ Note the environment variable NODE_ENV=development above causes node to turn off
               CONFIGURING WIRELESS INTERFACE(S)
 ******************************************************************************************************
 
+Installing the Logic Supply UWN200 w/4" antenna:
+
+The driver is already built-in to the distribution. However, we may have to modify /etc/network/interfaces
+file to activate it. We will a little later on.
+Step #1
+root@beaglebone:~# lsmod       'will show you the driver is installed:
+Module       Size Used by
+g_multi       50407 2
+libcomposite  15028 1 g_multi
+mt7601Usta   641118 1          <- driver we are looking for, driver is located and installed
+root@beaglebone:~#
+
+also 'lsusb' will verify the USB interface -(this is a USB wireless adapter)
+
+then
+root@beaglebone:~# lsusb
+Bus 001 Device 002: ID 148f:7601 Ralink Technology, Corp. <-- interface is active
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+root@beaglebone:~#
+
+root@beaglebone:~# ifconfig -a will show that the interface is present. Note whether it has HW address assigned..
+Step #2
+root@beaglebone:~# ifconfig -a
+eth0 Link encap:Ethernet HWaddr 1c:ba:8c:dc:c2:51
+UP BROADCAST MULTICAST MTU:1500 Metric:1
+RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+collisions:0 txqueuelen:1000
+RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
+Interrupt:40
+
+lo Link encap:Local Loopback
+inet addr:127.0.0.1 Mask:255.0.0.0
+inet6 addr: ::1/128 Scope:Host
+UP LOOPBACK RUNNING MTU:65536 Metric:1
+RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+collisions:0 txqueuelen:0
+RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
+
+ra0 Link encap:Ethernet HWaddr 00:00:00:00:00:00    <----- Note here
+BROADCAST MULTICAST MTU:1500 Metric:1
+RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+collisions:0 txqueuelen:1000
+RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
+
+usb0 Link encap:Ethernet HWaddr 02:aa:5e:71:1f:d3
+inet addr:192.168.7.2 Bcast:192.168.7.3 Mask:255.255.255.252
+inet6 addr: fe80::aa:5eff:fe71:1fd3/64 Scope:Link
+UP BROADCAST RUNNING MULTICAST MTU:1500 Metric:1
+RX packets:121 errors:0 dropped:0 overruns:0 frame:0
+TX packets:108 errors:0 dropped:0 overruns:0 carrier:0
+collisions:0 txqueuelen:1000
+RX bytes:10453 (10.2 KiB) TX bytes:22672 (22.1 KiB)
+
+ra0 does not have a hardware address, the mt7601Usta driver indicates that it is not being used. This is the
+clue that the wireless interface is not enabled in /etc/network/interfaces file. Using 'wicd-curses' in the
+next step will not detect any networks, because the network adapter is not powered-up. Another clue is that
+a tiny LED is inside the adapter plug and is barely visible when powered up.
+
+So modify /etc/network/interfaces, to include the following lines:
+
+# WiFi Example
+allow-hotplug ra0
+iface ra0 inet dhcp    Note: This is in the Troubleshooting guide at end of
+(REBOOT)               installation guide at http://inspire.logicsupply.com/2014/07/beaglebone-wifi-installation.html
+
+Step #3
+root@beaglebone:~# wicd-curses
+
+wicd-curses is a great configuration tool, but everyone is having a problem with its initial use. It is
+probably supposed to detect the presence of ra0 interface (the guide shows it self-detecting), turns out
+you can go to preferences and tab to wireless inerface and just type it in. Hit OK and R(efresh) and it
+starts scanning and shows the networks it sees.
+Wireless Networks
+C STR                    ESSID  ENCRYPT        BSSID        MODE      CHNL
+73%                    MooreLAN Unsecured 60:C3:97:66:A6:FA Managed     1
+47%                    MooreLAN Unsecured 00:12:17:75:05:5F Managed     6
+
+Now we can highlight a network and hit 'C' to connect to it. The beaglebone will be assigned an IP address:
+Connected to MooreLAN"  Nickname:"MT7601STA at 76% (IP: 192.168.1.139)
+Step #4 There is also a graphical version of "wicd" you can run on the beaglebone desktop . You can
+also  access the desktop using a direct connection or a VNC session. Again preference must be set to ra0.
+Step#5 deleted
+Step#6 Set security
+ Go to 'Configure' Near the bottom see
+[ ] Use these settings for all networks sharing this essid
+[ ] Automatically connect to this network
+[x] Use Encryption
+WPA 1/2 (hex [0-9/A-F])   vvv
+Key *********
+
+The wireless configuration settings for Wicd are stored in /etc/wicd/manager-settings.conf
+
+********** End of UWN200 Installation
+The following is for the Wifi stick "Ourlink". It requires installing the driver (on mini-DVD)
+prior to start.
 The debian wireless configuration is described in two parts: Installing the hardware and driver to get
 iwconfig working, and the dealing with security and other issues to complete the installation.
 
@@ -542,3 +672,45 @@ Now that all looks well, we are ready install it.
 # make install
 ‹ Where to buy the BeagleBone BlackExpanding Linux Partitions: Part 1 of 2 ›
 Posted in BeagleBone Black, HowTo	Tagged with: node debian ubuntu
+*****************************************************************************************************************
+                               PANEL INSTALLATION
+*****************************************************************************************************************
+
+Leviton Series 140 Structured Media Center
+PHYSICAL SPECIFICATIONS
+Materials: Enclosure: 20-gauge, white powder-coated steel
+Cover: 18-gauge, white powder-coated steel
+Dimensions: Enclosure: 14.13” H x 14.3” W x 3.63” D
+Cover: 15.32” H x 15.62” W x 0.25D
+
+Leviton-47605-14E-14P $74.99 sold together
+the enclosure 47605-14E is about $40.00 retail
+the  47605-14O cover as hinged is a premium $45
+Lock & Key (Leviton-5L000-L0K)Lock and Key set for 140, 280, 420 Hinged Cover
+Leviton-5L000-L0K $10.76
+
+- See more at: http://www.broadbandutopia.com
+
+I think a good supply design is a 12V system, trickle charger, and a dc-dc converter down to 5V. The
+converters are pretty cheap, $8.00-$13.00 and then the options for the supply system are pretty open.
+
+Digikey carries big assortment of CUI Inc Series PYB10-T & PYB10-U converters
+Digikey PN 102-3154-ND $35.15 each 5V 100W ~2A should be good on 12v battery
+CUI Inc. PN PYB10-Q24-S5-U ~300 in stock (digikey)
+
+Also
+RioRand® DC-DC LTC1871 Boost Converter Module 3.5-30V 100W With Voltmeter Display
+$15.99 each direct order
+Also LTC1871 $9.95 each! similar specs - we actuall need step down not boost. I know the one above will work in boost or non-boost
+mode as the literature sayss input must be lower in boost mode.
+They have a step-down converter LM2596 $11.96 for (2).
+
+Bought (2)each of power units above.
+
+Leviton 47605-C5B Category 5 Voice and Data Module 6-Port, Bracket   This looks great to start with- wire
+inside the panel from beaglebone to punch-down. Leave the box with cat5 from the rj45's. $21.59 Found some for $15.
+
+http://www.riorand.com/electronics/riorandr-dc-dc-ltc1871-boost-converter-module-3-5-30v-100w-with-voltmeter-display.html
+Now lets find the trickle charger for 12V battery:
+Digikey PN 271-2386-ND 12VDC @ 1.2A for lead-acid battery $54.65 each 2.5mm I.D. x 5.5mm O.D. Female
+SL Power PN BVL121200003N  ~263 in stock (digikey) looks like a laptop charger

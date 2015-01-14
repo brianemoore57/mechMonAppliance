@@ -5,7 +5,12 @@
           "description": "gate",
           "name":"Front Gate",
           "label":"Gate",
-          "imageUrl": "images/tmp-9.gif",
+          "defaultStateImageUrl":"images/tmp-9.gif",
+          "animated":"true",
+          "images":{"state1ImageUrl": "images/tmp-9.gif",
+                    "state2ImageUrl":"images/tmp-4.gif",
+                    "state2To1ImageUrl":"images/gate_closing.gif",
+                    "state1To2ImageUrl":"images/gate_opening.gif" },
           "orderSeq": "1"
         },
         {
@@ -13,7 +18,8 @@
           "description": "Water Heater",
           "name":"Wtr Htr",
           "label":"W Htr",
-          "imageUrl": "images/hot-water-heater.jpg",
+          "defaultStateImageUrl": "images/hot-water-heater.jpg",
+          "animated":"false",
           "orderSeq": "1"
         },
         {
@@ -22,7 +28,8 @@
           "description": "furnace",
           "name":"Furnace",
           "label":"Furn",
-          "imageUrl": "images/gas-furnace-1-edited.jpg",
+          "defaultStateImageUrl": "images/gas-furnace-1-edited.jpg",
+          "animated":"false",
           "orderSeq": "1"
         },
         {
@@ -30,7 +37,8 @@
           "description": "sump pump",
           "name":"Sump Pump",
           "label":"Sump",
-          "imageUrl": "images/sump.jpg",
+          "defaultStateImageUrl": "images/sump.jpg",
+          "animated":"false",
           "orderSeq": "1"
         },
         {
@@ -38,7 +46,8 @@
           "description": "Thermostat",
           "name":"Thermostat",
           "label":"Tstat",
-          "imageUrl": "images/thermostat.jpg",
+          "defaultStateImageUrl": "images/thermostat.jpg",
+          "animated":"false",
           "orderSeq": "1"
         }
       ]

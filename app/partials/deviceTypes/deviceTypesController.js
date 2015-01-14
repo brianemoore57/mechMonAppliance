@@ -2,7 +2,7 @@
 //
 
 //add these objects to controller
-mechMonControllers.controller('DeviceTypesController', ['$scope',  function ($scope)  {
+mechMonControllers.controller('DeviceTypesController', ['$scope','$timeout', function ($scope, $timeout)  {
   var defaultType = 0;
   //    $scope.devices = Devices.query();
 
@@ -52,7 +52,13 @@ mechMonControllers.controller('DeviceTypesController', ['$scope',  function ($sc
       "description": "gate",
       "name":"Front Gate",
       "label":"Gate",
-      "imageUrl": "images/tmp-9.gif",
+      "defaultStateImageUrl": "images/gate_closed.gif",
+      "animated": "true",
+      "images":{
+        "state1ImageUrl": "images/gate_closed.gif",//"images/tmp-9.gif",
+        "state2ImageUrl":"images/tmp-4.gif",
+        "state2To1ImageUrl":"images/gate_closing.gif",
+        "state1To2ImageUrl":"images/gate_opening.gif" },
       "orderSeq": "1"
     },
     {
@@ -60,7 +66,8 @@ mechMonControllers.controller('DeviceTypesController', ['$scope',  function ($sc
       "description": "Water Heater",
       "name":"Wtr Htr",
       "label":"W Htr",
-      "imageUrl": "images/hot-water-heater.jpg",
+      "defaultStateImageUrl": "images/hot-water-heater.jpg",
+      "animated": "true",
       "orderSeq": "1"
     },
     {
@@ -69,7 +76,8 @@ mechMonControllers.controller('DeviceTypesController', ['$scope',  function ($sc
       "description": "furnace",
       "name":"Furnace",
       "label":"Furn",
-      "imageUrl": "images/gas-furnace-1-edited.jpg",
+      "defaultStateImageUrl": "images/gas-furnace-1-edited.jpg",
+      "animated": "true",
       "orderSeq": "1"
     },
     {
@@ -77,7 +85,8 @@ mechMonControllers.controller('DeviceTypesController', ['$scope',  function ($sc
       "description": "sump pump",
       "name":"Sump Pump",
       "label":"Sump",
-      "imageUrl": "images/sump.jpg",
+      "defaultStateImageUrl": "images/sump.jpg",
+      "animated": "true",
       "orderSeq": "1"
     },
     {
@@ -85,22 +94,27 @@ mechMonControllers.controller('DeviceTypesController', ['$scope',  function ($sc
       "description": "Thermostat",
       "name":"Thermostat",
       "label":"Tstat",
-      "imageUrl": "images/thermostat.jpg",
+      "defaultStateImageUrl": "images/thermostat.jpg",
+      "animated": "true",
       "orderSeq": "1"
     }
   ];
 
+  // Put all this stuff in an itit() function
+ var activeItem = Number(0); // initially
+  $scope.activeItem =  activeItem;
+  $scope.defaultDeviceType = $scope.deviceTypes[activeItem].typeId;
+  $scope.displayImageUrl = $scope.deviceTypes[activeItem].defaultStateImageUrl;
+  $scope.name = $scope.deviceTypes[activeItem].name;
+  $scope.visibility = "visible";
 
-  $scope.defaultDeviceType = $scope.deviceTypes[0].typeId;
-  $scope.deviceTypeImageUrl = $scope.deviceTypes[0].imageUrl; // change to  deviceTypes[].imageUrl
-  $scope.name = " Front Gate";
-
-/*
   $scope.onButtonOpenClick =  function(){
-    //openGateAnimate();
+     openGateAnimate();
+     $timeout(closeGateAnimate,8000); // $timeout is an AngularJS wrapper
+
     $.ajax({
       type: "POST",
-      url: '/RelayK1On',
+      url: '/RelayK1On-30s',
       data: "1",
       success: function(){ },// here we will change button colors
       dataType: "text"
@@ -108,7 +122,7 @@ mechMonControllers.controller('DeviceTypesController', ['$scope',  function ($sc
   };
 
   $scope.onButtonCloseClick = function(){
-   // closeGateAnimate();
+    closeGateAnimate();
   $.ajax({
       type: "POST",
       url: '/RelayK1Off',
@@ -119,10 +133,10 @@ mechMonControllers.controller('DeviceTypesController', ['$scope',  function ($sc
   };
 
   $scope.onButtonHoldClick = function() {
-  //openGateAnimate();
+     openGateAnimate();
    $.ajax({
     type:     "POST",
-    url:      '/RelayK1On-30s',
+    url:      '/RelayK1On',
     data:     "1",
     success:  function () {
     },// here we will change button colors
@@ -130,70 +144,31 @@ mechMonControllers.controller('DeviceTypesController', ['$scope',  function ($sc
   });
 };
 
+  //"state1ImageUrl": "images/tmp-9.gif",
+  //  "state2ImageUrl":"images/tmp-4.gif",
+  var closeGateAnimate = function() {
+    var nextImage = $scope.deviceTypes[activeItem].images.state2To1ImageUrl;
 
-  $scope.closeGateAnimate = function() {
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-9.gif");
-  }, 1000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-8.gif");
-  }, 2000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-7.gif");
-  }, 3000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-6.gif");
-  }, 4000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-5.gif");
-  }, 5000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-5.gif");
-  }, 10000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-6.gif");
-  }, 11000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-7.gif");
-  }, 12000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-8.gif");
-  }, 13000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-9.gif");
-  }, 14000);
+    if ($scope.deviceTypes[activeItem].animated && nextImage != $scope.displayImageUrl)
+    {
+      $scope.visibility="hidden";
+      $scope.displayImageUrl = nextImage;
+      $scope.visibility="visible";
+    }
+   // probably need time delay here for chaining to be effective
+    return this;
 };
 
-  $scope.openGateAnimate = function() {
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-9.gif");
-  }, 1000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-8.gif");
-  }, 2000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-7.gif");
-  }, 3000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-6.gif");
-  }, 4000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-5.gif");
-  }, 5000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-5.gif");
-  }, 10000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-6.gif");
-  }, 11000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-7.gif");
-  }, 12000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-8.gif");
-  }, 13000);
-  setTimeout(function () {
-    $("#gate-img").attr("src", "../images/tmp-9.gif");
-  }, 14000);
-};*/
+  var openGateAnimate = function() {
+    var nextImage = $scope.deviceTypes[activeItem].images.state1To2ImageUrl;
+    if ($scope.deviceTypes[activeItem].animated &&  nextImage != $scope.displayImageUrl)
+    {
+      $scope.visibility="hidden";
+      $scope.displayImageUrl = nextImage;
+      $scope.visibility="visible";
+    }
+    // probably need time delay here for chaining to be effective
+    return this;
+  };
+
 }]);
