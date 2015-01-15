@@ -2,10 +2,14 @@
 # File: build.sh
 # Author: Brian E. Moore, PE 
 # Beaglebone Server provisioning build script 
-# configures and download dependancies not found on angstrom distro
+# configures and download dependancies not found on debian distro
 # to run once
 # Creation Date: 12-24-2014
-
+#
+# This file assumes USB or wired networking, since they work out of the box.
+# We have to have to add wireless to /etc/network/interface, and for now we have to finish wireless config
+# with wcid-curses. And we will have to reset with wcid-curses on customer site to attach to customer LAN.
+#
 WARNING="FALSE"
 
 USER='ubuntu'
@@ -21,7 +25,7 @@ WDIR=$(pwd)
 sudo chown -R $USER:$USER $INSTALL_DIR
 sudo chmod u=rwx,g=rwx,o=rwx $INSTALL_DIR
 umask 002
-
+# manual settings for wired ethernet
 # if no DHCP service, we must assign the gateway and DNS server address...
 #sudo /sbin/route add default gw 192.168.7.1
 #cat 'nameserver 8.8.8.8' >> /etc/resolv.conf
@@ -51,6 +55,7 @@ else
   echo $(date +%FT%T%z) "$LOGDIR/access.log already exists... " | tee -a $LOGDIR/build.log
 fi
 
+# Chicago seems to be available in the Debian timezone directories
 sudo ln -sf /usr/share/zoneinfo/America/Chicago /etc/localtime
 TIMESTAMP=$(date +%FT%T%z)
 
@@ -61,19 +66,21 @@ echo $(date +%FT%T%z) "Author: Brian E. Moore, PE " | tee -a $LOGDIR/build.log
 echo $(date +%FT%T%z) "Development build... " | tee -a $LOGDIR/build.log
 echo $(date +%FT%T%z) "- starting dev build script (build.sh) ..." | tee -a $LOGDIR/build.log
 
-echo $(date +%FT%T%z) 'run opkg update - can take several minutes... ' $PKG_OK | tee -a $LOGDIR/build.log
+#echo $(date +%FT%T%z) 'run opkg update - can take several minutes... ' $PKG_OK | tee -a $LOGDIR/build.log
 #sudo apt-get update
 
-#sudo opkg update
-#sudo opkg upgrade
-#get ip addresses and mask of first two network cards
+#get ip addresses and mask of network interfaces
 IP_ADDR0=$(ifconfig eth0 | grep 'inet addr'| cut -d':' -f2| cut -d' ' -f1)
 MASK0=$(ifconfig eth0 | grep 'inet addr'| cut -d':' -f4)
 IP_ADDR1=$(ifconfig usb0 | grep 'inet addr'| cut -d':' -f2| cut -d' ' -f1)
 MASK1=$(ifconfig usb0 | grep 'inet addr'| cut -d':' -f4)
-export IP_ADDR0; export IP_ADDR1; export MASK0; export MASK1
+IP_ADDR2=$(ifconfig ra0 | grep 'inet addr'| cut -d':' -f2| cut -d' ' -f1)
+MASK2=$(ifconfig ra0 | grep 'inet addr'| cut -d':' -f4)
+
+export IP_ADDR0; export IP_ADDR1; export IP_ADDR2 ;export MASK0; export MASK1; export MASK2
 echo $(date +%FT%T%z) 'IP_ADDR0: ' $IP_ADDR0 ' MASK0: ' $MASK0  | tee -a $LOGDIR/build.log
 echo $(date +%FT%T%z) 'IP_ADDR1: ' $IP_ADDR1 ' MASK1: ' $MASK1| tee -a $LOGDIR/build.log
+echo $(date +%FT%T%z) 'IP_ADDR2: ' $IP_ADDR2 ' MASK2: ' $MASK2| tee -a $LOGDIR/build.log
 
 PKG_VER=$(dpkg-query -s nodejs|grep "Version:")
 echo $(date +%FT%T%z) 'nodejs version installed: ' $PKG_VER | tee -a $LOGDIR/build.log
@@ -104,9 +111,10 @@ else
  echo $(date +%FT%T%z) 'git version installed: ' $PKG_VER | tee -a $LOGDIR/build.log
 fi
 
-# link required because bower uses "node" not "nodejs" as executable name 
-echo $(date +%FT%T%z) "Installing link from /usr/bin/nodejs /usr/bin/node" | tee -a $LOGDIR/build.log
-sudo ln -s /usr/bin/nodejs /usr/bin/node
+# link required because bower uses "node" not "nodejs" as executable name
+# this link already in place in Debian installation
+//echo $(date +%FT%T%z) "Installing link from /usr/bin/nodejs /usr/bin/node" | tee -a $LOGDIR/build.log
+//sudo ln -s /usr/bin/nodejs /usr/bin/node
 
 #############  grunt-cli installation - (Very much required for bootstrap)
 # grunt says not to install it (grunt exec)globally so now in package.json devdependancies

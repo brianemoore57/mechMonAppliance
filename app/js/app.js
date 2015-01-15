@@ -42,9 +42,29 @@ mechMonApp.config(['$routeProvider',
         templateUrl: 'partials/contact/contact.html',
         controller: 'ContactController'
       }).
+      when('/reports', {
+        templateUrl: 'partials/reports/reports.html',
+        controller: 'ReportsController'
+      }).
+      when('/diagnostics', {
+        templateUrl: 'partials/diagnostics/diagnostics.html',
+        controller: 'DiagnosticsController'
+      }).
       when('/config', {
         templateUrl: 'partials/config/config.html',
         controller: 'ConfigController'
+      }).
+      when('/customer', {
+        templateUrl: 'partials/customer/customer.html',
+        controller: 'CustomerController'
+      }).
+      when('/connection', {
+        templateUrl: 'partials/connection/connection.html',
+        controller: 'ConnectionController'
+      }).
+      when('/keys', {
+        templateUrl: 'partials/keys/keys.html',
+        controller: 'KeysController'
       }).
       otherwise({
         redirectTo: '/deviceTypes'

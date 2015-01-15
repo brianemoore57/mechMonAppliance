@@ -14,3 +14,31 @@ mechMonControllers.controller('ContactController', ['$scope',
 
     $scope.test = "Here";
   }]);
+
+mechMonControllers.controller('CustomerController', ['$scope',
+  function ($scope) {
+
+    $scope.test = "Here";
+  }]);
+mechMonControllers.controller('ConnectionController', ['$scope',
+  function ($scope) {
+
+    $scope.test = "Here";
+  }]);
+mechMonControllers.controller('DiagnosticsController', ['$scope',
+  function ($scope) {
+
+    $scope.test = "Here";
+  }]);
+
+mechMonControllers.controller('ReportsController', ['$scope',
+  function ($scope) {
+
+    $scope.test = "Here";
+  }]);
+
+mechMonControllers.controller('KeysController', ['$scope',
+  function ($scope) {
+
+    $scope.test = "Here";
+  }]);

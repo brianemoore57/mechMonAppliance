@@ -101,14 +101,22 @@ mechMonControllers.controller('DeviceTypesController', ['$scope','$timeout', fun
   ];
 
   // Put all this stuff in an itit() function
- var activeItem = Number(0); // initially
-  $scope.activeItem =  activeItem;
-  $scope.defaultDeviceType = $scope.deviceTypes[activeItem].typeId;
-  $scope.displayImageUrl = $scope.deviceTypes[activeItem].defaultStateImageUrl;
-  $scope.name = $scope.deviceTypes[activeItem].name;
+
+  $scope.activeItem =  Number(0);
+  $scope.defaultDeviceType = $scope.deviceTypes[$scope.activeItem].typeId;
+  $scope.displayImageUrl = $scope.deviceTypes[$scope.activeItem].defaultStateImageUrl;
+  $scope.name = $scope.deviceTypes[$scope.activeItem].name;
   $scope.visibility = "visible";
 
-  $scope.onButtonOpenClick =  function(){
+  $scope.setActiveMenuItem =  function(item){ // menu choices set menu item
+    {
+
+       $scope.activeItem = item;
+      $scope.displayImageUrl = $scope.deviceTypes[$scope.activeItem].defaultStateImageUrl;
+    }
+  };
+
+    $scope.onButtonOpenClick =  function(){
      openGateAnimate();
      $timeout(closeGateAnimate,8000); // $timeout is an AngularJS wrapper
 
@@ -147,9 +155,9 @@ mechMonControllers.controller('DeviceTypesController', ['$scope','$timeout', fun
   //"state1ImageUrl": "images/tmp-9.gif",
   //  "state2ImageUrl":"images/tmp-4.gif",
   var closeGateAnimate = function() {
-    var nextImage = $scope.deviceTypes[activeItem].images.state2To1ImageUrl;
+    var nextImage = $scope.deviceTypes[$scope.activeItem].images.state2To1ImageUrl;
 
-    if ($scope.deviceTypes[activeItem].animated && nextImage != $scope.displayImageUrl)
+    if ($scope.deviceTypes[$scope.activeItem].animated && nextImage != $scope.displayImageUrl)
     {
       $scope.visibility="hidden";
       $scope.displayImageUrl = nextImage;
@@ -160,8 +168,8 @@ mechMonControllers.controller('DeviceTypesController', ['$scope','$timeout', fun
 };
 
   var openGateAnimate = function() {
-    var nextImage = $scope.deviceTypes[activeItem].images.state1To2ImageUrl;
-    if ($scope.deviceTypes[activeItem].animated &&  nextImage != $scope.displayImageUrl)
+    var nextImage = $scope.deviceTypes[$scope.activeItem].images.state1To2ImageUrl;
+    if ($scope.deviceTypes[$scope.activeItem].animated &&  nextImage != $scope.displayImageUrl)
     {
       $scope.visibility="hidden";
       $scope.displayImageUrl = nextImage;

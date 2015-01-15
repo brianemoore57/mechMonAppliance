@@ -93,26 +93,6 @@ sudo apt-get install avahi-daemon
 ssh <beagle-username>@<beagle-hostname>.local
 
 ========================================================================
-  Installation (flash)of emmc with new debian OS image
-========================================================================
-
-1. Download new emmc image from beaglebone.org (they also have version to boot direct from SD)
-2. Decompress the image with 7Zip.
-3. Insert microSD in its holder and into PC.
-4. Bring up 'Image Writer' a Windows program( download if not already)
-5. Enter path to image, SD location (drive G,probably), and check MD5 box.
-6. Click on write, and it will take maybe 10 minutes to write out image to card.
-7. To flash onto BBB, you need only install card, and hold down USR/BOOT button (isolated button).
-8. Wait while programming occurs. When flashing is complete, all 4 USRx LEDs will be steady on or
-   off. The latest Debian flasher images automatically power down the board upon completion. This can take up to
-   45 minutes.
-9. Power-down your board, remove the SD card and apply power again to be complete.
-
-see http://beagleboard.org/getting-started#update
-
-
-
-========================================================================
 Use of ssh keys, here is github's literature:
 ========================================================================
 check for public keys....
@@ -364,7 +344,7 @@ see /etc/systemd/system/syslog.service for an example
 You can also see the file used by the beaglebone 'bonescript' and 'autorun' services.
 We will be turning them off.
 Our services unit file is named mechMon.service currently the following. It goes in
-v
+/etc/systemd/system
 ============================
 [Unit]
 Description=mechMon
@@ -565,12 +545,140 @@ Wireless should spring to life.
 
 2.An excellent presentation of this process i in the article: https://wiki.debian.org/WiFi/HowToUse
 
+
+
+******************************************************************************************************
+              UPGRADING NODE FROM SRC (only necessary on Angstrom distro
+******************************************************************************************************
+
+Just for posterity, the procedure to upgrade node.js from scratch on the angstrom distro would follow the following
+procedure:
+
+Step 1: Prerequisites - here's what we will need, not how we will build it (we will use flash image)
+We will need a compiler to compile the node source. The build requires python for the configuration scripts and
+gcc for the actual code.
+# opkg update
+# opkg upgrade - will take hours
+# opkg install ntp
+$ vim /etc/ntp.conf
+and edit similar to the following
+  # NTP Configuration File
+  # The driftfile must remain in a place specific to this machine
+  driftfile /etc/ntp.drift
+  logfile /var/log/ntpd.log
+  # NTP Servers for USA
+  server 0.us.pool.ntp.org
+  server 1.us.pool.ntp.org
+  server 2.us.pool.ntp.org
+  server 3.us.pool.ntp.org
+  # Using local hardware clock as fallback
+  # Disable this when using ntpd -q -g -x as ntpdate or it will sync to itself
+  # server 127.127.1.0
+  # fudge 127.127.1.0 stratum 14
+  # Defining a default security setting
+  restrict 192.168.1.0 mask 255.255.255.0 nomodify notrap
+
+Now we need to set again our local zone. To check the available ones, just look into the
+ /usr/share/zoneinfo/ directory.
+
+$ rm /etc/localtime
+$ ln -s /usr/share/zoneinfo/Europe/Paris /etc/localtime
+And now we are going to configure the ntp service.
+
+$ systemctl enable ntpdate.service
+$ systemctl enable ntpd.service
+And finally we are going to edit the “ntpdate.service”:
+
+$ vim /lib/systemd/system/ntpdate.service
+And replace this line:
+  ExecStart=/usr/bin/ntpdate-sync silent
+With these two:
+  ExecStart=/usr/bin/ntpd -q -g -x
+  ExecStart=/sbin/hwclock --systohc
+Restart the board to allow the “ntp” service to start.
+
+-------------------------------------------
+# apt-get install python
+# apt-get install build-essential
+
+
+Step 2: Download Node Source
+Download the latest source code from the node.js website. At the time of writing it is version 0.10.5 so
+adjust this to the desired version. We will unpack it in the current directory. Specify the -C <path> option to
+extract it elsewhere.
+
+# wget http://nodejs.org/dist/v0.10.5/node-v0.10.5.tar.gz
+# tar xzvf node-v0.10.5.tar.gz
+
+
+Step 3: Configure
+At the time of this writing, there is a problem with the Google V8 Snapshot feature causing node to
+segmentation fault. Snapshotting helps node start faster and is not a big-deal feature; we will just compile
+without it.
+
+# cd node-v0.10.5
+# ./configure --without-snapshot
+Result:
+
+{ 'target_defaults': { 'cflags': [],
+                       'default_configuration': 'Release',
+                       'defines': [],
+                       'include_dirs': [],
+                       'libraries': []},
+  'variables': { 'arm_fpu': 'vfpv3',
+                 'arm_neon': 0,
+                 'armv7': 1,
+                 'clang': 0,
+                 'gcc_version': 47,
+                 'host_arch': 'arm',
+                 'node_install_npm': 'true',
+                 'node_prefix': '',
+                 'node_shared_cares': 'false',
+                 'node_shared_http_parser': 'false',
+                 'node_shared_libuv': 'false',
+                 'node_shared_openssl': 'false',
+                 'node_shared_v8': 'false',
+                 'node_shared_zlib': 'false',
+                 'node_tag': '',
+                 'node_unsafe_optimizations': 0,
+                 'node_use_dtrace': 'false',
+                 'node_use_etw': 'false',
+                 'node_use_openssl': 'true',
+                 'node_use_perfctr': 'false',
+                 'node_use_systemtap': 'false',
+                 'python': '/usr/bin/python',
+                 'target_arch': 'arm',
+                 'v8_enable_gdbjit': 0,
+                 'v8_no_strict_aliasing': 1,
+                 'v8_use_arm_eabi_hardfloat': 'true',
+                 'v8_use_snapshot': 'false'}}
+creating  ./config.gypi
+creating  ./config.mk
+
+
+Step 4: Compile
+We are ready to compile. It is going to take about a half-hour to complete — go get a cup of coffee.
+
+# make
+
+
+Step 5: Verify
+Now that the build has finished, we can verify that all looks well before we install it.
+
+# ./node -e 'console.log("het werkt!");'
+# ./node -v
+
+
+Step 6: Install
+Now that all looks well, we are ready install it.
+
+# make install
+‹ Where to buy the BeagleBone BlackExpanding Linux Partitions: Part 1 of 2 ›
+Posted in BeagleBone Black, HowTo	Tagged with: node debian ubuntu
 *****************************************************************************************************************
                                PANEL INSTALLATION
 *****************************************************************************************************************
 
-Considered rf transparent enclosures, but a better design is to use external antenna(s) with
-sma connector extension cables.
 Leviton Series 140 Structured Media Center
 PHYSICAL SPECIFICATIONS
 Materials: Enclosure: 20-gauge, white powder-coated steel

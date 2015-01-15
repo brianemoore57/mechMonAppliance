@@ -11,16 +11,16 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <title>MTS Home Controller</title>
-  <link rel="icon" href="images/favicon.ico">
+  <link rel="icon" ng-href="images/favicon.ico">
 
   <!-- Bootstrap core CSS -->
-  <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link ng-href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
    <!-- Bootstrap theme -->
-  <link href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
+  <link ng-href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
   <!-- Bootstrap-dialog theme -->
-  <!--link href="bootstrap3-dialog/dist/css/bootstrap-dialog.min.css" rel="stylesheet" -->
+  <!--link ng-href="bootstrap3-dialog/dist/css/bootstrap-dialog.min.css" rel="stylesheet" -->
   <!-- Custom styles for this template -->
-  <link href="css/app.css" rel="stylesheet">
+  <link ng-href="css/app.css" rel="stylesheet">
   <script src="bower_components/angular/angular.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
   <script src="bower_components/angular-resource/angular-resource.js"></script>
@@ -73,23 +73,26 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="#/deviceTypes">MTS Home Controller</a>
+      <a class="navbar-brand" ng-href="#/deviceTypes">MTS Home Controller</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="#/deviceTypes">Home</a></li>
-        <li><a href="#/about">About</a></li>
-        <li><a mode="button" href="#/contact" >Contact</a></li>
+        <li class="active"><a ng-href="#/deviceTypes">Home</a></li>
+        <li><a ng-href="#/about">About</a></li>
+        <li><a ng-href="#/contact">Contact</a></li>
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Config<span class="caret"></span></a>
+          <a ng-href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Tools<span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-            <li><a href="#">Conn Setup</a></li>
-            <li><a href="#">Cust Setup</a></li>
-            <li><a href="#">Key Setup</a></li>
-            <li class="divider"></li>
-            <li class="dropdown-header">Nav header</li>
-            <li><a href="#">Reports</a></li>
-            <li><a href="#">Diagnostics</a></li>
+            <li><a ng-href="#/reports">Reports</a></li>
+            <li><a ng-href="#/diagnostics">Diagnostics</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a ng-href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Config<span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a ng-href="#/connection">Conn Setup</a></li>
+            <li><a ng-href="#/customer">Cust Setup</a></li>
+            <li><a ng-href="#/keys">Key Setup</a></li>
           </ul>
         </li>
       </ul>
@@ -98,45 +101,15 @@
 </nav>
 
 <div class="container-fluid">
-  <ul class="nav nav-pills deviceTypes">
-    <!--li class="active" ng-repeat="deviceType in deviceTypes">
-      <a href="#/deviceTypes/{{deviceTypes[0].typeId}}">{{deviceTypes[0].name}}</a>
-    </li-->
-    <li class="active"><a href="#/deviceTypes">Gate</a></li></li>
-    <li ><a href="#">W Htr</a></li></li>
-    <li><a href="#">Furn</a></li></li>
-    <li><a href="#">Sump</a></li></li>
-    <li ><a href="#">Tstat</a></li></li>
+  <ul class="nav nav-pills">
+    <!--li ng-click="setActiveMenuItem($index)" ng-repeat="type in deviceTypes"-->
+    <li  ng-click="setActiveMenuItem($index)"  ng-class=" $first? 'active': '' " ng-repeat="type in deviceTypes">
+      <a >{{type.label}}</a>
+    </li>
   </ul>
 </div>
 
 <div ng-view></div>
 
-<script>
-/*8
-  $('#gatePill').click( function() {
-    $("#main" ).load( "partials/gateDetail.html" );
-  });
-  $('#whtrPill').click( function() {
-    $("#main" ).load( "partials/w-heaterDetail.html" );
-  });
-  $('#furnPill').click( function() {
-    $("#main" ).load( "partials/furnaceDetail.html" );
-  });
-  $('#sumpPill').click( function() {
-    $("#main" ).load( "partials/sumpDetail.html" );
-  });
-  $('#tstatPill').click( function() {
-    $("#main" ).load( "partials/thermostatDetail.html" );
-  });
-  $('#configPill').click( function() {
-    $("#main" ).load( "partials/configureDetail.html" );
-  });
-*/
-  // These are dynamic handlers which we cannot bind until their objects exist. jQuery's answer is .on
-  // and we bind them to something that does exist, the '#navbar' tag, which will 'watch' for them.
-
-
-</script>
 </body>
 </html>
