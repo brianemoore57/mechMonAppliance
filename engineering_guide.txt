@@ -1,5 +1,11 @@
-﻿
-Building on the Debian Distribution
+﻿===============================================================================
+Configuring Beaglebone ARM processor on the Debian Distribution
+===============================================================================
+Brian E. Moore, PE
+Moore Technical Services, LLC
+moore-brian48@sbcglobal.net
+copyright (c) 2015 by Moore Technical Scervices, LLC
+
 (Linux beaglebone 3.8.13-bone47 #1 SMP Fri Apr 11 01:36:09 UTC 2014 armv7l GNU/Linux)
 
 We will probably not develop any more using ethernet over USB connection, as it requires a lot of effort only to be
@@ -20,9 +26,7 @@ The preparation of a new beaglebone black (without cape) requires the following 
 
 3. Connect to it via USB.
 
-4. Assigning a static IP address if required/desired. Actual field installs will be static. The connman tool is
-   used on Angstrom, or modify the boot.sh as required. This can and should be scripted as the default address is
-   192.168.7.2. A different static IP may be desired in the lab, and a final IP will be assigned in the field. An
+4. Default address is 192.168.7.2. A different static IP may be desired in the lab, and a final IP will be assigned in the field. An
    explanation is at https://www.howtoforge.com/debian-static-ip-address.
 
 5. Execute install.sh script on the company laptop/server which copies a complete project directory as
@@ -34,7 +38,7 @@ The preparation of a new beaglebone black (without cape) requires the following 
      e. company ssh private key(s) so unit can communicate with company cloud server and service technician.
 
 6. Execute /usr/local/mecMon/build.sh - It will make directories, set permissions, etc. It may upgrade the
-7. If a cape is to be used, i.e. CBB-Relay cape, a .dtbo file must be installed into /var/lib
+7. If a cape is to be used, i.e. CBB-Relay cape, a .dtbo file must be installed into /lib/firmware.
 7.1 Currently have to 'npm install bonescript' in the mechMon project.
 7.2 we will soon change all this so that we can npm install OUR project with all these
   dependencies.
@@ -59,8 +63,10 @@ The booting requirements beyond what the platform does by itself, include making
 are in a known state. So somewhere in our boot process, we need to set them. Since the boot script itself is a BASH
 script, I prefer to set the pins with javascript when the server is launched. You will see code in server.js that
 initializes some of the pins, but must be expanded.
-
+===============================================================================
 ENGINEERING TIPS
+===============================================================================
+
 Just something to study:
 avahi wiki site http://en.wikipedia.org/wiki/Avahi_%28software%29
 Avahi is a free zero-configuration networking (zeroconf) implementation, including a system for multicast
@@ -92,26 +98,213 @@ sudo apt-get install avahi-daemon
 # On the PC
 ssh <beagle-username>@<beagle-hostname>.local
 
+---- Bonescript project repositories
+There are several projects related to bonescript on github
+Note that the .dtbo file provided with a cape is for 'direct' use with sysFS syntax, etc. Using that with
+bonescript is a conflict as both configure directories in /sys/class/gpio. Caused me lots of problems. Just
+forget the cape's *.dtbo if you are using bonescript. Otherwise, use the cape's *.dtbo and create shell scripts, like
+echo 1 > /sys/class/gpio/gpio115/value to set a bit.
+
+-jadon/bonescript
+  Scripting tools for the BeagleBoard and BeagleBone
+-jadon/bone101
+  Presentation web server written in bonescript
+-igxlogic/BoneScript-SocketIO
+  Control a BBB using Socket.IO
+-michaelcdillon/Bonescript Serial
+Enable the serial ports on the BB for NodeJS usage
+-dollfreaks/bonescript
+  A ClojureScript wrapper for the bonescript library
+-jadonk/blockly-bonescript
+  Graphical programming with Bonescript
+  A total of 31 beagle-bone related repositories were found (bem 01/21/14)
+
+The CBBRelay cape is from Logic_Supply. See the source for the cape firmware is
+ https://github.com/jadonk/cape-firmware/blob/master/arch/arm/boot/dts/BB-ADC-00A0.dts
+ The file is compiled with 'dtc' to produce a *.dtbo file. It can be directly downloaded, however.
+A fork of bonescript.js is at https://www.npmjs.com/package/octalbonescript
+Reference on compiling a cape boards overlay file is at
+https://learn.adafruit.com/introduction-to-the-beaglebone-black-device-tree/compiling-an-overlay
+ A sample compilation of a different board's file looks like:
+   root@beaglebone:~#dtc -O dtb -o ADAFRUIT-SPI0-00A0.dtbo -b 0 -@ ADAFRUIT-SPI0-00A0.dts
+and produces:
+   root@beaglebone:~# ls -ltr
+...
+   -rw-r--r-- 1 root root 1255 Jul 29 14:33 ADAFRUIT-SPI0-00A0.dts
+   -rw-r--r-- 1 root root 1042 Jul 29 14:35 ADAFRUIT-SPI0-00A0.dtbo
+
+http://kilobaser.com/blog/2014-07-15-beaglebone-black-gpios is a very good article.
+
+/sys/devices/bone_capemgr.9 is a directory with properties of the device, in directories such as:
+baseboard  driver  modalias  power  slot-4  slot-5  slot-7  slot-8  slots  subsystem  uevent
+looking in the slots directory shows us:
+Another is:
+   http://www.logicsupply.com/blog/2013/07/18/disabling-the-beaglebone-black-hdmi-cape/
+which we disabled the hdmi
+optargs=quiet capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
+root@beaglebone:~# less /sys/devices/bone_capemgr.9/slots
+
+ 1: 55:PF---
+ 2: 56:PF---
+ 3: 57:PF---
+ 4: ff:P-O-L Bone-LT-eMMC-2G,00A0,Texas Instrument,BB-BONE-EMMC-2G
+ 5: ff:P-O-L Bone-Black-HDMI,00A0,Texas Instrument,BB-BONELT-HDMI
+ 7: ff:P-O-L Override Board Name,00A0,Override Manuf,bspm_P8_18_f
+ 8: ff:P-O-L Override Board Name,00A0,Override Manuf,bspm_P9_27_f
+
 ========================================================================
   Installation (flash)of emmc with new debian OS image
 ========================================================================
-
+Source of Rev C Debian image we are now using to re-flash from
+  http://elinux.org/Beagleboard:BeagleBoneBlack_Debian#BBB_Rev_C_.284GB_eMMC.29
+  I have successfully downloaded and called debian2, dated 12-31-2014
+  https://rcn-ee.net/rootfs/bb.org/testing/2014-12-31/lxde-4gb/BBB-eMMC-flasher-debian-7.7-lxde-4gb-armhf-2014-12-31-4gb.img.xz
+  md5sum: 4a1b0fc8fbb24bb94f360f050f4f6507
 1. Download new emmc image from beaglebone.org (they also have version to boot direct from SD)
 2. Decompress the image with 7Zip.
 3. Insert microSD in its holder and into PC.
-4. Bring up 'Image Writer' a Windows program( download if not already)
+3.5 check md5 hash with winMdSum on Windows, or md5sum -c linux.iso.md5 (check *.xz compressed versions)
+4. Bring up 'Win32DiskImager aka Image Writer' a Windows program( download if not already)
 5. Enter path to image, SD location (drive G,probably), and check MD5 box.
 6. Click on write, and it will take maybe 10 minutes to write out image to card.
-7. To flash onto BBB, you need only install card, and hold down USR/BOOT button (isolated button).
+7.1 Connect BBB to monitor, keyboard,mouse, and ethernet.
+7. To flash onto BBB, install SD card, hold down USR/BOOT button until first of the OP LEDs flash.
 8. Wait while programming occurs. When flashing is complete, all 4 USRx LEDs will be steady on or
-   off. The latest Debian flasher images automatically power down the board upon completion. This can take up to
-   45 minutes.
+   off. This can take up to 45 minutes. Pay no attention to the pattern of the LEDs, go by the screen data.
 9. Power-down your board, remove the SD card and apply power again to be complete.
 
 see http://beagleboard.org/getting-started#update
 
+To partition/reformat a SD card on Windows (7):
+1. launch a CMD window
+2. start DISKPART, i.e. $ DISKPART <Enter> (same as fdisk in Linux)
+3. LIST DISK, carefully note disk number, i.e. (0,1,2)
+4. SELECT DISK #, i.e. SELECT DISK 1, NOT 0 its probably your HD
+5. CLEAN
+6. CREATE PARTITION PRIMARY
+7. FORMAT FS=FAT32 QUICK
+8. ASSIGN LETTER=G, probably best
+
+also:
+You can use the official SDCard.org application (Windows / Mac).
+https://www.sdcard.org/downloads/formatter_3
+
+http://www.partition-tool.com/personal.htm
+========================================================================
+                  ssh config settings
+========================================================================
+
+OpenSSH supports a thing called keepalive – a keepalive packet is sent after a predetermined interval of
+inactivity so SSH sessions should not time out. Keepalive can be set on server side or client side.
+Client side is usually better because then all possible connections are kept alive.
+
+Client side:
+edit
+/etc/ssh/ssh_config
+and enable
+ServerAliveInterval 30
+
+or if You can not edit global config file put the same line in Your personal config file:
+~/.ssh/config
+
+Server side:
+edit
+/etc/ssh/sshd_config
+and enable
+ClientAliveCountMax 10
+ClientAliveInterval 30
+
+This means that after 30 seconds of inactivity server sends a keepalive message.
+After 10 messages without responses from client connection is dropped.
+
+This is different from TCPKeepAlive, as manual says: "If they are sent, death of the connection or crash of
+one of the machines will be properly noticed." However, this means that connections will die if the route is
+down temporarily, and some people find it annoying. Actually TCPKeepAlive is on by default but I still get
+disconnects from some servers behind some firewall or DSL device. Go figure. BBB times out regularly. I just
+had it time out and then the wifi was off-line, had to reboot.
+
+There are man pagse for ssh_config and sshd_config, i.e. $ man sshd_config The snippets below are from latter:
+
+ ClientAliveCountMax
+             Sets the number of client alive messages (see below) which may be sent with-
+             out sshd(8) receiving any messages back from the client.  If this threshold
+             is reached while client alive messages are being sent, sshd will disconnect
+             the client, terminating the session.  It is important to note that the use of
+             client alive messages is very different from TCPKeepAlive (below).  The
+             client alive messages are sent through the encrypted channel and therefore
+             will not be spoofable.  The TCP keepalive option enabled by TCPKeepAlive is
+             spoofable.  The client alive mechanism is valuable when the client or server
+             depend on knowing when a connection has become inactive.
+
+             The default value is 3.  If ClientAliveInterval (see below) is set to 15, and
+             ClientAliveCountMax is left at the default, unresponsive SSH clients will be
+             disconnected after approximately 45 seconds.  This option applies to protocol
+             version 2 only.
+
+     ClientAliveInterval
+             Sets a timeout interval in seconds after which if no data has been received
+             from the client, sshd(8) will send a message through the encrypted channel to
+             request a response from the client.  The default is 0, indicating that these
+             messages will not be sent to the client.  This option applies to protocol
+             version 2 only.
+
+After reading the BBB Debian default settings, important settings are:
+1. PermitRootLogin yes
+2. PermitEmptyPasswords yes
+3. TCPKeepAlive yes
+4. Subsystem sftp /usr/lib/openssh/sftp-server
+
+===============================================================================
+                The ~/.ssh/config file (my personal laptop version
+===============================================================================
+
+## Brian E. Moore, PE ##
+
+### default for all ##
+Host *
+     ServerAliveInterval 30
+     ServerAliveCountmax 2400
+
+## bench test beaglebone ##
+Host debian2
+     HostName debian2
+     User debian</p>
+     IdentityFile ~/.ssh/debian2.key
+
+## home mechanical room server 1 ##
+Host mechroom1
+     HostName mechroom1
+     User root</p>
+     IdentityFile ~/.ssh/mechroom1.key
+
+## bench test beaglebone on usb
+Host beaglebone
+     Hostname 192.168.7.2
+     User root
+     IdentityFile ~/.ssh/bbb_usb.key
+     StrictHostKeyChecking=no
+## Login AWS Cloud ##
+Host mts-app.com
+     Hostname mts-app.com
+     User ubuntu</p>
+     IdentityFile ~/.ssh/server1.pem
 
 
+This file permits ssh'ing into my AWS server as  ssh mts-app.com without password. An issue with ssh is
+that you have local user and remote user names. If they are different, you clarify with -l <username>. With use of
+a personal config file like shown above, this is reduced to ssh mts-app.com. If you have a problem, use the verbose
+ flag ssh -v mts-app.com and see how far the process went.
+
+Note that microwave ovens operate at 2.45 GHz and 802.11b/g/n at 2.4 GHz. I have watched a M/W oven immediately
+terminate a wireless ssh connection.
+I understand that some firewalls strip the TCPKeepAlive, so we lose that benefit.
+I think our engineering standard should be to turn on both kinds of keepalive on both client and server
+config files since the BBB may be ssh'd in or out of. Then policy would be:
+
+a. Leave on TCPKeepalive, i.e. yes
+b. set client file  ServerAliveInterval 30
+c. set server file ClientAliveCountMax 10, ClientAliveInterval 30
+d. we will eventually tighten to strict host key, no empty passwords, allow root password,allow key-pairs
 ========================================================================
 Use of ssh keys, here is github's literature:
 ========================================================================
@@ -333,7 +526,27 @@ One problem encountered is the loss of access to the beaglebone by corrupting th
 another means of access. Of course a production installation should be of lesser concern, but much development
 time lost over this problem. See https://wiki.debian.org/NetworkConfiguration
 
+One trick to know when dealing with lots of different logins, is to temporarily turn off 'StrictHostKeyChecking'
+or use the cli option as
+# ssh -o 'StrictHostKeyChecking no' user@host, then you get a warning but you can log in and do what you need
+to do. The problem is that logging into one BB, then another at the same IP address, they send back different (host)
+keys, and your client side cries foul. You can delete the offending key easily. Note the following message tells
+us which key is the offending one: (Number 6)
 
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that the RSA host key has just been changed.
+The fingerprint for the RSA key sent by the remote host is
+a7:a8:f2:97:94:33:58:b7:9d:bc:e0:a6:6b:f7:0a:29.
+Please contact your system administrator.
+Add correct host key in /home/ramesh/.ssh/known_hosts to get rid of this message.
+Offending key in /home/ramesh/.ssh/known_hosts: 6
+Permission denied (publickey,password).
+
+So we can delete it with: # sed -i '6d' ~/.ssh/known_hosts
 
 Regarding node.js, for these types of applications, you may not feel your ajax call, especially a POST,
 needs return any value to set a bit. But node requires you to return a value, even from a POST [although
@@ -521,9 +734,9 @@ also  access the desktop using a direct connection or a VNC session. Again prefe
 Step#5 deleted
 Step#6 Set security
  Go to 'Configure' Near the bottom see
-[ ] Use these settings for all networks sharing this essid
-[ ] Automatically connect to this network
-[x] Use Encryption
+[x] Use these settings for all networks sharing this essid
+[x] Automatically connect to this network
+[] Use Encryption
 WPA 1/2 (hex [0-9/A-F])   vvv
 Key *********
 
@@ -561,33 +774,60 @@ sudo depmod -a
 sudo update-initramfs -u
 sudo modprobe 8188eu
 Wireless should spring to life.
+=====================================================================
+Unit Testing - Karma
+=====================================================================
 
+$ sudo npm install -g karma
+
+In the base folder of you application directory:
+$ karma init    will generate a dummy config file karma.conf.js
+
+$ karma start [optionalPath ToConfigFile]
+
+will start the Karma server on port 9876 (default). It should open up a browser and capture it
+automatically.
+$ karma run        will run the tests
+
+In the Jasmine language, a typical test will look like:
+
+describe("MyController:", function() {
+
+  it("to work correctly", function() {
+  var a = 12;
+  var b = a;
+  expect(a).toBe(b);
+  expect(a).not.toBe(null);
+  });
+});
+
+Other issues to review:  Integration with Webstorm & autoWatch
+}
+}
 
 2.An excellent presentation of this process i in the article: https://wiki.debian.org/WiFi/HowToUse
 
 *****************************************************************************************************************
-                               PANEL INSTALLATION
+                               HARDWARE & PANEL INSTALLATION
 *****************************************************************************************************************
 
 Considered rf transparent enclosures, but a better design is to use external antenna(s) with
 sma connector extension cables.
-Leviton Series 140 Structured Media Center
+Elk ELK-SWB14 Structured Wiring Box (hinged panel) w/ lock
 PHYSICAL SPECIFICATIONS
 Materials: Enclosure: 20-gauge, white powder-coated steel
 Cover: 18-gauge, white powder-coated steel
-Dimensions: Enclosure: 14.13” H x 14.3” W x 3.63” D
-Cover: 15.32” H x 15.62” W x 0.25D
-
-Leviton-47605-14E-14P $74.99 sold together
-the enclosure 47605-14E is about $40.00 retail
-the  47605-14O cover as hinged is a premium $45
-Lock & Key (Leviton-5L000-L0K)Lock and Key set for 140, 280, 420 Hinged Cover
-Leviton-5L000-L0K $10.76
-
+Dimensions: Enclosure: 14.25” H x 14.25” W x 3.50” D
+2" bott knockout bottom, 1/2",3/4",1 1/4" also - about $40.00
+http://www.securitystoreusa.com/
+ELK-SWP 4.75" multi-purpose adapter plate $8.44
+ELK-SWG circuit board glides $3.59
+ELK-SWNS-1 Nylon standoffs (pack of 10) $4.66
 - See more at: http://www.broadbandutopia.com
 
 I think a good supply design is a 12V system, trickle charger, and a dc-dc converter down to 5V. The
-converters are pretty cheap, $8.00-$13.00 and then the options for the supply system are pretty open.
+converters are pretty cheap, $8.00-$13.00 and then the options for the supply system are pretty open. A low battery
+cutoff is used in systems to not deep drain the battery during extended power offs.
 
 Digikey carries big assortment of CUI Inc Series PYB10-T & PYB10-U converters
 Digikey PN 102-3154-ND $35.15 each 5V 100W ~2A should be good on 12v battery

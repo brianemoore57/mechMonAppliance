@@ -3,11 +3,7 @@
 
 //add these objects to controller
 mechMonControllers.controller('DeviceTypesController', ['$scope','$timeout', function ($scope, $timeout)  {
-  var defaultType = 0;
-  //    $scope.devices = Devices.query();
 
-
-  //$scope.deviceTypes = DeviceTypes.query();
   $scope.devices =  [
     {
       "id": "gate-1",
@@ -100,7 +96,7 @@ mechMonControllers.controller('DeviceTypesController', ['$scope','$timeout', fun
     }
   ];
 
-  // Put all this stuff in an itit() function
+  // Put all this stuff in an init() function
 
   $scope.activeItem =  Number(0);
   $scope.defaultDeviceType = $scope.deviceTypes[$scope.activeItem].typeId;
@@ -108,12 +104,12 @@ mechMonControllers.controller('DeviceTypesController', ['$scope','$timeout', fun
   $scope.name = $scope.deviceTypes[$scope.activeItem].name;
   $scope.visibility = "visible";
 
-  $scope.setActiveMenuItem =  function(item){ // menu choices set menu item
-    {
-
-       $scope.activeItem = item;
-      $scope.displayImageUrl = $scope.deviceTypes[$scope.activeItem].defaultStateImageUrl;
-    }
+  $scope.$watch(function() { // testing
+     console.log('digest listener fired');
+  });
+  $scope.setActiveMenuItem =  function(item) { // menu choices set menu item
+        $scope.activeItem = item;
+        $scope.displayImageUrl = $scope.deviceTypes[$scope.activeItem].defaultStateImageUrl;
   };
 
     $scope.onButtonOpenClick =  function(){
