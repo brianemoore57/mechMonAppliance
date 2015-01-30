@@ -269,31 +269,34 @@ Host *
 Host debian2
      HostName debian2
      User debian</p>
-     IdentityFile ~/.ssh/debian2.key
+     IdentityFile ~/.ssh/id_rsa
 
 ## home mechanical room server 1 ##
 Host mechroom1
      HostName mechroom1
      User root</p>
-     IdentityFile ~/.ssh/mechroom1.key
+     IdentityFile ~/.ssh/id_rsa
 
 ## bench test beaglebone on usb
 Host beaglebone
      Hostname 192.168.7.2
      User root
-     IdentityFile ~/.ssh/bbb_usb.key
+     IdentityFile ~/.ssh/id_rsa
      StrictHostKeyChecking=no
+
 ## Login AWS Cloud ##
 Host mts-app.com
      Hostname mts-app.com
      User ubuntu</p>
      IdentityFile ~/.ssh/server1.pem
 
+Copy your public key to the server with ssh-copy root@remote_host. This command also takes care of
+the directory and file permissions.
 
 This file permits ssh'ing into my AWS server as  ssh mts-app.com without password. An issue with ssh is
 that you have local user and remote user names. If they are different, you clarify with -l <username>. With use of
 a personal config file like shown above, this is reduced to ssh mts-app.com. If you have a problem, use the verbose
- flag ssh -v mts-app.com and see how far the process went.
+flag ssh -v mts-app.com and see how far the process went.
 
 Note that microwave ovens operate at 2.45 GHz and 802.11b/g/n at 2.4 GHz. I have watched a M/W oven immediately
 terminate a wireless ssh connection.

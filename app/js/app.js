@@ -6,7 +6,7 @@
 var mechMonApp = angular.module('mechMonApp', [
   'ngRoute',
 //  'mechMonServices',
-  'mechMonControllers'
+  'mechMonControllers','mechMonDirectives'
 ]);
 // I think being too abstract here might work against us..
 // We are assuming Room 1 right now
@@ -18,21 +18,9 @@ var mechMonApp = angular.module('mechMonApp', [
 mechMonApp.config(['$routeProvider',
   function($routeProvider) {
     $routeProvider.
-      when('/deviceTypes', {
-        templateUrl: 'partials/deviceTypes/deviceTypes.html',
-        controller: 'DeviceTypesController'
-      }).
-      when('/deviceType/:deviceTypeId', {
-        templateUrl: 'partials/deviceType/deviceType.html',
-        controller: 'DeviceTypeController'
-      }).
-      when('/devices', {
-        templateUrl: 'partials/devices/devices.html',
-        controller: 'DevicesController'
-      }).
-      when('/device/:deviceId', {
-        templateUrl: 'partials//device/device.html',
-        controller: 'DeviceController'
+      when('/home', {
+        templateUrl: 'partials/master/master.html',
+        controller: 'MasterController'
       }).
       when('/about', {
         templateUrl: 'partials/about/about.html',
@@ -50,10 +38,6 @@ mechMonApp.config(['$routeProvider',
         templateUrl: 'partials/diagnostics/diagnostics.html',
         controller: 'DiagnosticsController'
       }).
-      when('/config', {
-        templateUrl: 'partials/config/config.html',
-        controller: 'ConfigController'
-      }).
       when('/customer', {
         templateUrl: 'partials/customer/customer.html',
         controller: 'CustomerController'
@@ -66,7 +50,27 @@ mechMonApp.config(['$routeProvider',
         templateUrl: 'partials/keys/keys.html',
         controller: 'KeysController'
       }).
+      when('/gate', {
+        templateUrl: 'partials/deviceTypes/gate.html',
+        controller: 'GateController'
+      }).
+      when('/w-htr', {
+        templateUrl: 'partials/deviceTypes/w-htr.html',
+        controller: 'W-htrController'
+      }).
+      when('/furn', {
+        templateUrl: 'partials/deviceTypes/furn.html',
+        controller: 'FurnController'
+      }).
+      when('/sump', {
+        templateUrl: 'partials/deviceTypes/sump.html',
+        controller: 'SumpController'
+      }).
+      when('/tstat', {
+        templateUrl: 'partials/deviceTypes/thermostat.html',
+        controller: 'ThermostatController'
+      }).
       otherwise({
-        redirectTo: '/deviceTypes'
+        redirectTo: '/home'
       });
   }]);

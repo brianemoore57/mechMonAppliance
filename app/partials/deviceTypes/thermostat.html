@@ -1,0 +1,15 @@
+
+<!DOCTYPE html>
+<html>
+
+<div class="container-fluid theme-showcase" ng-controller="ThermostatController">
+<div   >
+    <div class="page-header">
+      <h3>{{name}}</h3>
+    </div>
+    <img ng-bind-html ng-src="{{displayImageUrl}}"  alt="gate-closed" width="200" height="200">
+    <div id="digitalDisplayDiv" class="digitalDisplayContainer" digital-display ng-model="tstat" ></div>
+</div>
+</div>
+
+</html>

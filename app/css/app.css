@@ -24,3 +24,16 @@ body {
  but in angular causes undesired route changes
  they also have 'pure' angular code in lieu of bootstrap libraries available   */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+
+.digitalDisplayContainer
+{
+    display: inline-block;
+    background-color: Black;
+    border-radius: 5px;
+    margin-left: 12px;
+    padding: 0.25em;
+    height: 50px;
+    width: 150px;
+}
+

@@ -1,55 +1,58 @@
-
-  [
-        {
-          "typeId": "gate1",
-          "description": "gate",
-          "name":"Front Gate",
-          "label":"Gate",
-          "defaultStateImageUrl":"images/tmp-9.gif",
-          "animated":"true",
-          "images":{"state1ImageUrl": "images/tmp-9.gif",
-                    "state2ImageUrl":"images/tmp-4.gif",
-                    "state2To1ImageUrl":"images/gate_closing.gif",
-                    "state1To2ImageUrl":"images/gate_opening.gif" },
-          "orderSeq": "1"
-        },
-        {
-          "typeId": "w-htr1",
-          "description": "Water Heater",
-          "name":"Wtr Htr",
-          "label":"W Htr",
-          "defaultStateImageUrl": "images/hot-water-heater.jpg",
-          "animated":"false",
-          "orderSeq": "1"
-        },
-        {
-          "typeId": "furn-1",
-          "deviceType":"3",
-          "description": "furnace",
-          "name":"Furnace",
-          "label":"Furn",
-          "defaultStateImageUrl": "images/gas-furnace-1-edited.jpg",
-          "animated":"false",
-          "orderSeq": "1"
-        },
-        {
-          "typeId": "sump-1",
-          "description": "sump pump",
-          "name":"Sump Pump",
-          "label":"Sump",
-          "defaultStateImageUrl": "images/sump.jpg",
-          "animated":"false",
-          "orderSeq": "1"
-        },
-        {
-          "typeId": "tstat-1",
-          "description": "Thermostat",
-          "name":"Thermostat",
-          "label":"Tstat",
-          "defaultStateImageUrl": "images/thermostat.jpg",
-          "animated":"false",
-          "orderSeq": "1"
-        }
-      ]
-
-
+[
+{
+"typeId": "gate1",
+"description": "gate",
+"name":"Front Gate",
+"label":"Gate",
+"template": "gate.html",
+"defaultStateImageUrl": "images/gate_closed.gif",
+"animated": "true",
+"images":{
+"state1ImageUrl": "images/gate_closed.gif",//"images/tmp-9.gif",
+"state2ImageUrl":"images/tmp-4.gif",
+"state2To1ImageUrl":"images/gate_closing.gif",
+"state1To2ImageUrl":"images/gate_opening.gif" },
+"orderSeq": "1"
+},
+{
+"typeId": "w-htr1",
+"description": "Water Heater",
+"name":"Wtr Htr",
+"label":"W Htr",
+"template": "hot-water-heater.html",
+"defaultStateImageUrl": "images/hot-water-heater.jpg",
+"animated": "true",
+"orderSeq": "1"
+},
+{
+"typeId": "furn-1",
+"deviceType":"3",
+"description": "furnace",
+"name":"Furnace",
+"label":"Furn",
+"template": "furnace.html",
+"defaultStateImageUrl": "images/gas-furnace-1-edited.jpg",
+"animated": "true",
+"orderSeq": "1"
+},
+{
+"typeId": "sump-1",
+"description": "sump pump",
+"name":"Sump Pump",
+"label":"Sump",
+"template": "sump.html",
+"defaultStateImageUrl": "images/sump.jpg",
+"animated": "true",
+"orderSeq": "1"
+},
+{
+"typeId": "tstat-1",
+"description": "Thermostat",
+"name":"Thermostat",
+"label":"Tstat",
+"template": "thermostat.html",
+"defaultStateImageUrl": "images/thermostat.jpg",
+"animated": "true",
+"orderSeq": "1"
+}
+];

@@ -3,34 +3,19 @@
  */
 var mechMonServices = angular.module('mechMonServices', ['ngResource']);
 
-mechMonServices.factory('DevicesData', ['$resource',
+mechMonServices.factory('DevicesTypes', ['$resource',
   function($resource){
-    return $resource('/api/devices', {}, {
+    return $resource('/server/api/devices/', {}, {
       query: {method:'GET', isArray:true}
+
     });
+
+
   }]);
-/*
-mechMonServices.factory('DeviceData', ['$resource',
-  function($resource){
-    return $resource('api/:device.json', {}, {
-      query: {method:'GET', params:{deviceId:'deviceTypes'},
-        isArray:true}
-    });
-  }]);
-*/
-mechMonServices.factory('DeviceTypesData', ['$resource',
+
+mechMonServices.factory('Devices', ['$resource',
   function($resource){
     return $resource('/server/api/deviceTypes', {}, {
       query: {method:'GET', isArray:true}
     });
   }]);
-/*
-mechMonServices.factory('DeviceTypeData', ['$resource',
-  function($resource){
-    return $resource('api/:deviceType.json', {}, {
-      query: {method:'GET', params:{deviceType:'devices'},
-        isArray:true}
-    });
-  }]);
-
-  */
